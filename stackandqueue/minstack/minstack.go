@@ -8,6 +8,23 @@ import (
 	"strings"
 )
 
+// 描述
+// 实现一个特殊功能的栈，在实现栈的基本功能的基础上，再实现返回栈中最小元素的操作。
+//
+// 输入描述
+// 第一行输入一个整数 N 表示对栈进行的操作总数。
+// 下面N行每行输入一个字符串 S 表示操作的种类。
+// 如果 S 为 "push" 则后面还有一个整数 X 表示向栈里压入整数 X。
+// 如果 S 为 "pop" 则表示弹出栈顶操作。
+// 如果 S 为 "getMin" 则表示询问当前栈中的最小元素是多少。
+//
+// 输出描述
+// 对于每个 getMin 操作，输出一行表示当前栈中的最小元素是多少。
+//
+// 备注
+// 1 <= N <= 1000000
+// -1000000 <= X <= 1000000
+// 数据保证没有不合法的操作
 func main() {
 	sc := bufio.NewScanner(os.Stdin)
 
@@ -51,12 +68,15 @@ func (ms *MinStack) push(val int) {
 	// 则把新元素也压入 minStack 栈
 	if len(ms.minStack) == 0 {
 		ms.minStack = append(ms.minStack, val)
-	} else if val <= ms.minStack[len(ms.minStack)-1] {
+	} else if val <= ms.getmin() {
 		ms.minStack = append(ms.minStack, val)
 	}
 }
 
 func (ms *MinStack) pop() int {
+	if len(ms.valStack) == 0 {
+		panic("stack is empty.")
+	}
 	// 弹出 valStack 的栈顶元素
 	ans := ms.valStack[len(ms.valStack)-1]
 	ms.valStack = ms.valStack[:len(ms.valStack)-1]
@@ -69,5 +89,8 @@ func (ms *MinStack) pop() int {
 }
 
 func (ms *MinStack) getmin() int {
+	if len(ms.minStack) == 0 {
+		panic("stack is empty.")
+	}
 	return ms.minStack[len(ms.minStack)-1]
 }
