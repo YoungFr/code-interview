@@ -5,7 +5,8 @@ package systemdesign
 // 基于 TCP 协议；每次请求都需要建立一次 TCP 连接。
 //
 // HTTP/1.1 - 1997
-// 引入长连接（keep-alive）机制。
+// 引入长连接（keep-alive）机制 => 可以在一个 TCP 连接上发送多个
+//   请求和响应。
 // 引入管线化（pipelining）机制 => 在收到响应之前可以发送多个
 //   请求，但是服务端必须按照请求的先后次序返回结果 => 实际实现
 //   有各种问题，因此大多数浏览器都不支持；除此之外，管线化机制
@@ -24,7 +25,7 @@ package systemdesign
 //   HTTP/2 在应用层解决了队头阻塞问题，但是该问题仍然在传输层存在。
 //   因为 TCP 使用 “丢包重传” 机制来能保证可靠传输，如果发生了丢包，
 //   丢失的包必须要等待重新传输确认，这会阻塞该TCP连接中的所有请求。
-// 引入服务端推送（server push）机制
+// 引入服务端推送（server push）机制。
 //
 // HTTP/3 - 2022
 //
@@ -43,3 +44,6 @@ package systemdesign
 // 新的 HTTP/3 协议基于 QUIC 协议，QUIC 协议基于 UDP 实现了可靠传输。
 // QUIC的特性包括快速握手、集成 TLS 加密、彻底解决队头阻塞、连接迁移、
 // 向前纠错等。
+//
+// 参考：https://juejin.cn/post/6995109407545622542
+//       https://www.wbolt.com/http1-vs-http2-vs-http3.html
