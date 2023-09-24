@@ -45,5 +45,6 @@ package systemdesign
 // QUIC的特性包括快速握手、集成 TLS 加密、彻底解决队头阻塞、连接迁移、
 // 向前纠错等。
 //
-// 参考：https://juejin.cn/post/6995109407545622542
-//       https://www.wbolt.com/http1-vs-http2-vs-http3.html
+// 参考：
+// https://juejin.cn/post/6995109407545622542
+// https://www.wbolt.com/http1-vs-http2-vs-http3.html

@@ -17,4 +17,6 @@ package systemdesign
 // 5. 服务器返回 HTTP 响应
 // 6. 浏览器渲染 HTTP 内容
 //
-// 参考：https://zhuanlan.zhihu.com/p/133906695
+// 参考：
+// https://zhuanlan.zhihu.com/p/133906695
+// https://github.com/alex/what-happens-when
