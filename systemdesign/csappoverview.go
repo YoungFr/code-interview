@@ -191,10 +191,33 @@ package systemdesign
 //
 //                                 1
 //                    TO    ---------------
-//         加速比 S = ---- =             a
+//               S = ---- =             a
 //                    TN     (1 - a) + ---
 //                                      k
 //
 // - 结论
 //   当我们对系统的某个部分加速时，其对系统整体性能的影响取决于该部分的重要性（a）和加速程度（k）。
 //   所以，如果我们想显著地提高系统的速度，就必须提升系统中相当大部分的速度。
+//
+// 9.2 并发与并行
+// CONCURRENCY: the general concept of a system with multiple, simultaneous activities
+// PARALLELISM: the use of concurrency to make a system run faster
+//
+// - 线程级并发 => 多核处理器与超线程
+// - 指令级并行 => 流水线与超标量操作
+// - SIMD => 向量指令
+//
+// 9.3 虚拟机抽象
+//
+//  +-------------------- Virtual Machine ---------------------+
+//  |                                                          |
+//  |                  +-------------- Processes --------------+
+//  |                  |                                       |
+//  |                  +--- ISA ---+------ Virtual Memory -----+
+//  |                  |           |                           |
+//  |                  |           |             +--- Files ---+
+//  |                  |           |             |             |
+//  +------------------+-----------+-------------+-------------+
+//  | Operating System | Processor | Main Memory | I/O devices |
+//  +------------------+-----------+-------------+-------------+
+//
