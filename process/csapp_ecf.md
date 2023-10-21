@@ -14,4 +14,4 @@
 
 异常处理的基本思想如下图所示。任何情况下处理器检测到有事件发生时，它通过 **异常表(exception table)** 执行间接过程调用，到一个专门处理此类事件的称为 **异常处理程序(exception handler)** 的操作系统子程序中处理异常，然后根据异常类型执行后续操作（1.2 节）。
 
-![anatomy_of_exception](assets\anatomy_of_exception.png)
+![anatomy_of_exception](assets/anatomy_of_exception.png)
