@@ -55,3 +55,52 @@
 **终止(abort)** 是执行指令时发生的不可恢复的致命错误。异常处理程序会将控制交给 `abort` 例程，该例程会终止程序。
 
 ![abort](assets/abort.png)
+
+### 1.3 异常实例
+
+在 x86-64 系统上有高达 256 种异常，其中 [0-31](https://wiki.osdev.org/Exceptions) 是由英特尔架构师定义的，32-255 则对应操作系统定义的陷阱和中断。对于陷阱，在 Linux 操作系统上有几百个系统调用（[完整列表](https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl)）可供使用，它们都可以使用 `syscall` 指令来调用。而 C 标准库则提供了对这些系统调用的包装，我们将系统调用和与它们相关联的包装函数统称为 **系统级函数(system-level function)** 。下面是使用 `syscall` 打印 "hello, world\n" 的例子：
+
+```assembly
+# 文件名：hello.s
+# 所有 Linux 系统调用的参数都通过寄存器传递
+# 寄存器 %rax 包含系统调用号
+# 寄存器 %rdi, %rsi, %rdx, %r10, %r8, %r9 依次存放最多六个参数
+# 返回值放在 %rax 寄存器，负数表示发生错误
+# 在 Linux 系统上依次输入下面两条命令
+#   gcc -c hello.s
+#   ld -o hello hello.o
+# 然后输入 ./hello 运行就可以在控制台打印出 Hello, world! 字符串
+.data
+
+msg:
+  .ascii "Hello, world!\n"
+  len = . - msg
+
+.text
+  .global _start
+
+_start:
+  movq  $1, %rax   # write is system call 1
+  movq  $1, %rdi   # arg1: stdout has file descriptor 1
+  movq  $msg, %rsi # arg2: "Hello, world!\n" string
+  movq  $len, %rdx # arg3: length of string
+  syscall          # make the system call
+
+  movq  $60, %rax  # _exit is system call 60
+  movq  $0, %rdi   # arg1: exit status is 0
+  syscall          # make the system call
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
