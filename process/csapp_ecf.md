@@ -1,3 +1,5 @@
+[toc]
+
 # Exceptional Control Flow
 
 从给处理器加电到断电为止，程序计数器 PC 中的值形成了一个 a~1~, a~2~, ..., a~n-1~ 的序列。其中 a~k~ 表示指令 I~k~ 的地址，从 a~k~ 到 a~k+1~ 的变化称为 **控制转移 (control transfer)** 。上边的序列称为处理器的 **控制流 (control flow)** 。
@@ -21,3 +23,35 @@
 ![exception_handling](assets/exception_handling.png)
 
 所以，异常的处理是由硬件和软件合作完成的。硬件负责触发异常和生成异常处理程序的地址，剩下的工作由异常处理程序完成。
+
+### 1.2 异常分类
+
+异常分类概览：
+
+![exception_classes](assets/exception_classes.png)
+
+##### 1.2.1 中断
+
+**中断(interrupt)** 是 **异步(asynchronously)** 发生的，异步的含义是中断不是由任何一条专门的指令的执行造成的。中断的异常号用于标识引发中断的设备，用于处理中断的异常处理程序称为 **中断处理程序(interrupt handler)** 。
+
+![interrupt](assets/interrupt.png)
+
+##### 1.2.2 陷阱
+
+**陷阱(trap)** 是通过执行一条指令而引发的 **有意的(intentional)** 异常，它最重要的用途是 **系统调用(system call)** 。从程序员的角度来看，系统调用和普通的函数调用是一样的，但是系统调用运行在内核模式而普通函数调用运行在用户模式。
+
+![trap](assets/trap.png)
+
+##### 1.2.3 故障
+
+**故障(fault)** 是执行一条指令时出现的错误情况，它有可能被故障处理程序修复，也可能会造成当前程序终止。
+
+最典型的故障是 **缺页异常(page fault)** 。当指令引用的虚拟地址对应的物理页面不在内存中时会发生缺页异常，然后缺页处理程序会从磁盘中加载页面并将控制返回给当前指令重新执行。
+
+![fault](assets/fault.png)
+
+##### 1.2.4 终止
+
+**终止(abort)** 是执行指令时发生的不可恢复的致命错误。异常处理程序会将控制交给 `abort` 例程，该例程会终止程序。
+
+![abort](assets/abort.png)
