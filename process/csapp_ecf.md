@@ -15,3 +15,9 @@
 异常处理的基本思想如下图所示。任何情况下处理器检测到有事件发生时，它通过 **异常表(exception table)** 执行间接过程调用，到一个专门处理此类事件的称为 **异常处理程序(exception handler)** 的操作系统子程序中处理异常，然后根据异常类型执行后续操作（1.2 节）。
 
 ![anatomy_of_exception](assets/anatomy_of_exception.png)
+
+系统中每种可能的异常都被分配了一个唯一的称为 **异常号(exception number)** 的非负整数，它被用作异常表的索引。当系统启动时，操作系统会分配和初始化一张异常表，表的起始地址放在 **异常表基址寄存器(exception table base register)** 中，而表项 k 则存放异常 k 的处理程序的地址。当处理器检测到事件发生时，它首先生成异常处理程序的地址，然后转到相应的处理程序。
+
+![exception_handling](assets/exception_handling.png)
+
+所以，异常的处理是由硬件和软件合作完成的。硬件负责触发异常和生成异常处理程序的地址，剩下的工作由异常处理程序完成。
