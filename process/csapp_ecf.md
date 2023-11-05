@@ -89,7 +89,6 @@ _start:
   movq  $60, %rax  # _exit is system call 60
   movq  $0, %rdi   # arg1: exit status is 0
   syscall          # make the system call
-
 ```
 
 # 2. 进程

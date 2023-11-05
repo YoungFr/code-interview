@@ -106,3 +106,15 @@ func main() {
 运行效果：
 
 ![server](assets/server.png)
+
+# 接收和发送 RESP 协议消息
+
+TODO
+
+# 实现 SET 和 GET 命令
+
+TODO
+
+# 实现 AOF 持久化机制
+
+TODO
