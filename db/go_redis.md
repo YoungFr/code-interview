@@ -14,7 +14,7 @@ What I cannot create, I do not understand. - Richard Feynman
 
 # 准备工作
 
-Redis 不支持在 Windows 上运行。为了在 Windows 上使用 Redis，我们首先要安装 [WSL2](https://learn.microsoft.com/zh-cn/windows/wsl/)（**W**indows **S**ubsystem for **L**inux）。
+由于 Redis 不支持在 Windows 上运行，所以我们首先要安装 [WSL2](https://learn.microsoft.com/zh-cn/windows/wsl/)（**W**indows **S**ubsystem for **L**inux）。
 
 安装完成后启动 Ubuntu 系统，依次输入下面 4 条命令来完成 Redis 的安装：
 
@@ -25,7 +25,7 @@ sudo apt-get update
 sudo apt-get install redis
 ```
 
-成功安装后使用  `sudo service redis-server start` 命令启动 Redis 服务器。然后输入 `redis-cli` 命令可以进入交互模式，在交互模式下我们可以输入一些命令并查看执行结果：
+安装成功后可以使用  `sudo service redis-server start` 命令来启动 Redis 服务器，然后输入 `redis-cli` 命令可以进入交互模式。在交互模式下我们可以输入一些命令并查看执行结果：
 
 ```bash
 $ sudo service redis-server start
@@ -109,7 +109,82 @@ func main() {
 
 # 接收和发送 RESP 协议消息
 
-TODO
+当用户在客户端键入一个命令请求时，这个命令请求会被转换成 RESP 格式然后通过套接字发送给服务器。服务器需要读取并解析这些字节流，将命令的类型和参数保存在 Go 结构体中等待后续的执行；当命令执行完成后，结果保存在 Go 结构体中，然后服务器将它序列化成字节流发送给客户端。
+
+用于保存客户端的命令及服务器的执行结果的结构体定义如下：
+
+```go
+// 客户端的命令和服务器的执行结果都使用 Data 结构体来表示
+// 字段 dataType 的值是 "SIMPLE_STRING"、"ERROR"、"INTEGER"、"BULK_STRING" 和 "ARRAY" 之一
+// 剩余的字段根据 dataType 的值来相应地设置
+// 客户端的命令 (命令名 + 参数) 总是被编码成一个多行字符串的数组
+// 所以在解析客户端发来的消息时只需要处理 BULK_STRING 和 ARRAY 类型
+// 服务器的执行结果则根据命令的不同可以是任何格式
+type Data struct {
+	dataType    string
+	simpleStr   string
+	errorMsg    string
+	integer     int64
+	bulkStr     string
+	isNullBulk  bool
+	array       []Data
+	isNullArray bool
+}
+```
+
+定义一个 `RESP` 结构体负责读取字节流并解析 `Data` 结构体以及将 `Data` 结构体写入套接字：
+
+```go
+// resp.go
+type RESP struct {
+	reader *bufio.Reader
+	writer *bufio.Writer
+}
+
+func NewRESP(rwc io.ReadWriteCloser) *RESP {
+	return &RESP{
+		reader: bufio.NewReader(rwc),
+		writer: bufio.NewWriter(rwc),
+	}
+}
+
+// main.go
+func handleConn(conn net.Conn) {
+	defer conn.Close()
+	...
+	r := NewRESP(conn)
+	...
+}
+```
+
+然后定义 RESP 结构体的 `read` 和 `write` 方法：
+
+```go
+func (r *RESP) read() (data Data, err error) {
+	dataType, err := r.reader.ReadByte()
+	if err != nil {
+		return data, err
+	}
+	switch dataType {
+	case BULK_STRING:
+		return r.readBulk()
+	case ARRAY:
+		return r.readArray()
+	}
+	return data, errUnknownRequestDataType
+}
+
+func (r *RESP) write(d Data) error { 
+	if _, err := r.writer.Write(d.marshal()); err != nil {
+		return err
+	}
+	// Don't forget to flush!
+	if err := r.writer.Flush(); err != nil {
+		return err
+	}
+	return nil
+}
+```
 
 # 实现 SET 和 GET 命令
 
