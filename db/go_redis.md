@@ -188,7 +188,71 @@ func (r *RESP) write(d Data) error {
 
 # 实现 SET 和 GET 命令
 
-TODO
+客户端的命令 (命令名 + 参数) 总是被编码成一个多行字符串的数组，其中第一个元素表示命令的类型，所以我们可以通过下面的代码获取字符串格式的命令的名字：
+
+```go
+req, err := r.read()
+...
+commandName := strings.ToUpper(req.array[0].bulkStr)
+```
+
+然后我们定义一个哈希表为每一种命令都定义一个对应的处理函数，就像下面这样：
+
+```go
+var handlers = map[string]func([]Data) Data{
+	"SET": set,
+	"GET": get,
+}
+```
+
+所有的命令处理函数都有相同的函数签名 `func([]Data) Data` ，函数接收一个 `[]Data` 类型的参数数组，进行操作后返回一个 `Data` 结构体作为响应。
+
+接下来定义哈希表用于存储所有的键值对并定义 `set` 和 `get` 处理函数：
+
+```go
+type Pairs struct {
+	kv map[string]string
+	mu sync.RWMutex
+}
+
+var p = Pairs{
+	kv: make(map[string]string),
+	mu: sync.RWMutex{},
+}
+
+// SET key value
+func set(args []Data) Data {
+	var reply Data
+	switch len(args) {
+	case 2:
+		{
+			k, v := args[0].bulkStr, args[1].bulkStr
+			p.mu.Lock()
+			p.kv[k] = v
+			p.mu.Unlock()
+			reply.dataType = datatypes[SIMPLE_STRING]
+			reply.simpleStr = "OK"
+		}
+	default:
+		{
+			reply.dataType = datatypes[ERROR]
+			reply.errorMsg = "ERR wrong number of arguments for 'set' command"
+		}
+	}
+	return reply
+}
+
+// GET key
+func get(args []Data) Data { ... }
+```
+
+在 `handleConn` 函数中将执行结果发送给客户端：
+
+```go
+if err := r.write(reply); err != nil {
+	log.Fatalln(err)
+}
+```
 
 # 实现 AOF 持久化机制
 
