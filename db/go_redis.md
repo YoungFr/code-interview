@@ -254,6 +254,9 @@ if err := r.write(reply); err != nil {
 }
 ```
 
+执行结果：
+
+![SETandGET](assets/SETandGET.png)
+
 # 实现 AOF 持久化机制
 
-TODO
