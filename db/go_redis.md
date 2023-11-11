@@ -260,3 +260,103 @@ if err := r.write(reply); err != nil {
 
 # 实现 AOF 持久化机制
 
+到目前为止，所有数据都存放在服务器的内存中，服务器一旦重启这些数据就会全部丢失。接下来我们使用 AOF 机制来实现数据的持久化。
+
+AOF (**A**ppend-**O**nly **F**ile) 机制的思想是在服务器运行时保存其执行的写命令来记录数据库状态，服务器启动时会载入和执行 AOF 文件中的所有命令来还原服务器关闭之前的数据库状态。
+
+定义一个 AOF 结构体，在 `NewAOF` 函数中启动一个 goroutine 定时将 AOF 文件中的内容持久化存储到磁盘中：
+
+```go
+type AOF struct {
+	file *os.File
+	mu   sync.Mutex
+}
+
+func NewAOF(path string) (*AOF, error) {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		return nil, err
+	}
+	aof := &AOF{
+		file: f,
+		mu:   sync.Mutex{},
+	}
+	go func() {
+		for {
+			aof.mu.Lock()
+			aof.file.Sync()
+			aof.mu.Unlock()
+			time.Sleep(1 * time.Second)
+		}
+	}()
+	return aof, nil
+}
+```
+
+为 AOF 结构体定义一个 `write` 方法，每当服务器要执行的命令是写入命令时，先将这个命令保存到 AOF 文件中：
+
+```go
+// aof.go
+func (a *AOF) write(req Data) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	_, err := a.file.Write(req.marshal())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+// main.go
+var writingCommands = map[string]bool{
+	"SET": true,
+}
+
+if handler, ok := handlers[commandName]; ok {
+    if writingCommands[commandName] {
+        aof.write(req)
+    }
+    reply = handler(args)
+    ...
+}
+```
+
+再定义一个 `read` 方法，每次服务器启动时先读入 AOF 文件中的所有命令并依次执行一遍：
+
+```go
+// aof.go
+func (a *AOF) read() ([]Data, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.file.Seek(0, io.SeekStart)
+	ds := make([]Data, 0)
+	r := NewRESP(a.file)
+	for {
+		d, err := r.read()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+		ds = append(ds, d)
+	}
+	return ds, nil
+}
+
+// main.go
+aof, err := NewAOF("db.aof")
+if err != nil {
+    log.Fatalln(err)
+}
+defer aof.close()
+if commands, err := aof.read(); err != nil {
+    log.Fatalln(err)
+} else {
+    for _, command := range commands {
+        handlers[strings.ToUpper(command.array[0].bulkStr)](command.array[1:])
+    }
+}
+```
+
+这样我们就实现了数据库的持久化储存。
+
