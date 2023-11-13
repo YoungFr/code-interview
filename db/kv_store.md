@@ -313,5 +313,74 @@ func (d *Diskv) Import(srcFilename, dstKey string, move bool) (err error) {
 	}
 	return err
 }
+
+func (d *Diskv) ReadString(key string) string {
+	value, _ := d.Read(key)
+	return string(value)
+}
+
+// 读取键 key 对应的值，发生错误时会返回空字符串
+// 如果缓存命中则不会读取磁盘，否则会将键和对应的值存储到缓存中
+func (d *Diskv) Read(key string) ([]byte, error) {
+	rc, err := d.ReadStream(key, false)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer rc.Close()
+	return io.ReadAll(rc)
+}
+
+// 读取键 key 对应的值，如果缓存命中且 direct 为 false 则使用缓存中的值；否则从磁盘中读取
+// 如果 direct 为 true 则会从缓存中删除键 key 和其对应的值
+func (d *Diskv) ReadStream(key string, direct bool) (io.ReadCloser, error) {
+	pathKey := d.transform(key)
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	if val, ok := d.cache[key]; ok {
+		if !direct {
+			buf := bytes.NewReader(val)
+			if d.Compression != nil {
+				return d.Compression.Reader(buf)
+			}
+			return io.NopCloser(buf), nil
+		}
+		go func() { // 懒惰删除
+			d.mu.Lock()
+			defer d.mu.Unlock()
+			d.uncacheWithLock(key, uint64(len(val)))
+		}()
+	}
+	return d.readWithRLock(pathKey)
+}
+
+// 从磁盘中读取
+func (d *Diskv) readWithRLock(pathKey *PathKey) (io.ReadCloser, error) {
+	filename := d.completeFilename(pathKey)
+	fi, err := os.Stat(filename)
+	if err != nil {
+		return nil, err
+	}
+	if fi.IsDir() {
+		return nil, os.ErrNotExist
+	}
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	var r io.Reader
+	if d.CacheSizeMax > 0 {
+		r = newSiphon(f, d, pathKey.originalKey)
+	} else {
+		r = &closingReader{f}
+	}
+	var rc = io.ReadCloser(io.NopCloser(r))
+	if d.Compression != nil {
+		rc, err = d.Compression.Reader(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return rc, nil
+}
 ```
 
