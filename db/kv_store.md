@@ -1,4 +1,4 @@
-KV 存储项目 [`diskv`](https://github.com/peterbourgon/diskv) 源代码分析：
+用 Go 语言实现的 KV 存储项目 [`diskv`](https://github.com/peterbourgon/diskv) 的源代码分析：
 
 ```go
 package diskv
@@ -381,6 +381,101 @@ func (d *Diskv) readWithRLock(pathKey *PathKey) (io.ReadCloser, error) {
 		}
 	}
 	return rc, nil
+}
+
+// newSiphon constructs a siphoning reader that represents the passed file.
+// When a successful series of reads ends in an EOF, the siphon will write
+// the buffered data to Diskv's cache under the given key.
+func newSiphon(f *os.File, d *Diskv, key string) io.Reader {
+	return &siphon{
+		f:   f,
+		d:   d,
+		key: key,
+		buf: &bytes.Buffer{},
+	}
+}
+
+// siphon is like a TeeReader: it copies all data read through it to an
+// internal buffer, and moves that buffer to the cache at EOF.
+type siphon struct {
+	f   *os.File
+	d   *Diskv
+	key string
+	buf *bytes.Buffer
+}
+
+func (s *siphon) Read(p []byte) (int, error) {
+	n, err := s.f.Read(p)
+	if err == nil {
+		return s.buf.Write(p[0:n])
+	}
+	if err == io.EOF {
+		s.d.cacheWithoutLock(s.key, s.buf.Bytes())
+		if closeErr := s.f.Close(); closeErr != nil {
+			return n, closeErr
+		}
+		return n, err
+	}
+	return n, err
+}
+
+func (d *Diskv) cacheWithoutLock(key string, val []byte) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.cacheWithLock(key, val)
+}
+
+// cacheWithLock attempts to cache the given key-value pair in the store's
+// cache. It can fail if the value is larger than the cache's maximum size.
+func (d *Diskv) cacheWithLock(key string, val []byte) error {
+	// If the key already exists, delete it.
+	d.bustCacheWithLock(key)
+	valueSize := uint64(len(val))
+	if err := d.ensureCacheSpaceWithLock(valueSize); err != nil {
+		return fmt.Errorf("%s; not caching", err)
+	}
+	// be very strict about memory guarantees
+	if (d.cacheSize + valueSize) > d.CacheSizeMax {
+		panic(fmt.Sprintf("failed to make room for value (%d/%d)", valueSize, d.CacheSizeMax))
+	}
+	d.cache[key] = val
+	d.cacheSize += valueSize
+	return nil
+}
+
+// ensureCacheSpaceWithLock deletes entries from the cache in arbitrary order
+// until the cache has at least valueSize bytes available.
+func (d *Diskv) ensureCacheSpaceWithLock(valueSize uint64) error {
+	if valueSize > d.CacheSizeMax {
+		return fmt.Errorf("value size (%d bytes) too large for cache (%d bytes)", valueSize, d.CacheSizeMax)
+	}
+	safe := func() bool { return (d.cacheSize + valueSize) <= d.CacheSizeMax }
+	for key, val := range d.cache {
+		if safe() {
+			break
+		}
+		d.uncacheWithLock(key, uint64(len(val)))
+	}
+	if !safe() {
+		panic(fmt.Sprintf("%d bytes still won't fit in the cache! (max %d bytes)", valueSize, d.CacheSizeMax))
+	}
+	return nil
+}
+
+// closingReader provides a Reader that automatically closes the
+// embedded ReadCloser when it reaches EOF
+type closingReader struct {
+	rc io.ReadCloser
+}
+
+func (cr closingReader) Read(p []byte) (int, error) {
+	n, err := cr.rc.Read(p)
+	if err == io.EOF {
+		if closeErr := cr.rc.Close(); closeErr != nil {
+			return n, closeErr // close must succeed for Read to succeed
+		}
+	}
+	return n, err
 }
 ```
 
