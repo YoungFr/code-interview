@@ -4,7 +4,7 @@
 
 文件是 Unix 哲学的中心思想，本节聚焦于磁盘文件的 I/O 。
 
-所有和 I/O 相关的系统调用都使用 **文件描述符 (file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。**<font color=red>每个进程都有它自己的打开的文件描述符的集合</font>。**在 shell 的日常操作中，标准输入、标准输出和标准错误这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承这三个文件描述符。
+所有和 I/O 相关的系统调用都使用 **文件描述符 (file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入、标准输出和标准错误这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承这三个文件描述符。
 
 文件操作的主要系统调用是 `fd = open(pathname, flags, mode)` 、`numread = read(fd, buffer, count)` 、`numwritten = write(fd, buffer, count)` 和 `status = close(fd)` 。文件 `copy.c` 使用这 4 个系统调用实现了一个简化的 [`cp(1)`](https://man7.org/linux/man-pages/man1/cp.1.html) 命令。
 
