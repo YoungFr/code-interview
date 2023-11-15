@@ -66,3 +66,39 @@ int main(int argc, char *argv[])
 }
 ```
 
+## 1.1 打开和关闭文件：`open` 和 `close` 系统调用
+
+系统调用 [`open`](https://man7.org/linux/man-pages/man2/open.2.html#DESCRIPTION) 用于打开一个已经存在的文件或创建并打开一个不存在的文件：
+
+```c
+#include <sys/stat.h>
+#inclide <fcntl.h>
+
+int open(const char *pathname, int flags, ... /* mode_t mode */);
+```
+
+参数 `flags` 用于指定文件的 **访问模式(access mode)** ，可选的值被划分为三组：**文件访问模式标志(file access mode flags)** (`O_RDONLY`, `O_WRONLY`, `O_RDWR`) 、**文件创建标志(file creation flags)** (`O_CLOEXEC`, `O_CREAT`, `O_DIRECTORY`, `O_EXCL`, `O_NOCTTY`, `O_NOFOLLOW`, `O_TMPFILE`, `O_TRUNC`) 和 **文件状态标志(file status flags)** (剩余所有值) 。<font color=red>**参数 `flags` 必须指定且只能指定一个文件访问模式标志**</font>，剩余两组中的值则可以指定零个或多个。
+
+参数 `mode` 用于指定创建一个新文件时的 **访问权限(permissions)** ，这个参数只在 `flags` 指定了 `O_CREAT` 或 `O_TMPFILE` 时有效，可选的值及含义见 [这里](https://man7.org/linux/man-pages/man2/open.2.html#DESCRIPTION) 。要注意的是文件的访问权限不仅依赖于参数 `mode` 的值，还受到进程的 `umask` 值和（可能存在的）父目录的默认访问控制列表的影响。
+
+调用成功时 `open` 返回一个文件描述符，<font color=red>**且保证是当前进程未使用的文件描述符中的最小者**</font>。调用失败时返回 -1 且会将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/open.2.html#ERRORS) 。
+
+> PS：在早期的 UNIX 实现中，`open` 只有两个参数且不能用于新建文件。系统调用 `creat` 专门用于创建并打开一个新文件，它等价于调用 `open(pathname, O_CREAT | O_WRONLY | O_TRUNC, mode)` 。但是由于 `open` 对文件的打开方式控制更加灵活，所以现在已很少使用 `creat` 系统调用。
+
+系统调用 [`close`](https://man7.org/linux/man-pages/man2/close.2.html#DESCRIPTION) 用于关闭一个打开的文件描述符：
+
+```c
+#include <fcntl.h>
+
+int close(int fd);
+```
+
+调用成功时返回 0，调用失败时返回 -1 且会将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/close.2.html#ERRORS) 。虽然<font color=red>**当进程退出时其打开的所有文件描述符都会被自动关闭**</font>，但是显式关闭不再需要的文件描述符是一个良好的编程习惯。因为文件描述符是一种有限资源，关闭失败可能会导致一个进程将其消耗殆尽。下面的代码可以捕获企图关闭未打开的文件描述符、两次关闭同一文件描述符和其他各种错误：
+
+```c
+if (close(fd) == -1)
+    errExit("close");
+```
+
+## 1.2 读写文件：`read` 和 `write` 系统调用
+
