@@ -1,3 +1,5 @@
+[toc]
+
 # Linux I/O
 
 # 1. File I/O
@@ -73,7 +75,7 @@ int main(int argc, char *argv[])
 ```c
 #include <sys/stat.h>
 #inclide <fcntl.h>
-
+/* mode_t: type of file attribute bitmasks */
 int open(const char *pathname, int flags, ... /* mode_t mode */);
 ```
 
@@ -101,4 +103,28 @@ if (close(fd) == -1)
 ```
 
 ## 1.2 读写文件：`read` 和 `write` 系统调用
+
+系统调用 [`read`](https://man7.org/linux/man-pages/man2/read.2.html#DESCRIPTION) 用于从文件描述符 `fd` 指代的文件中读取数据：
+
+```c
+#include <unistd.h>
+/* ssize_t: type of a byte count, or error */
+ssize_t read(int fd, void *buffer, size_t count);
+```
+
+参数 `count` 用于指定最多能读取的字节数。参数 `buffer` 表示用来存放读入的数据的内存缓冲区的地址，<font color=red>**缓冲区的长度至少应该是 `count` 个字节且必须预先分配**</font>。
+
+读操作会从 **文件偏移量(file offset)** （1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的数字</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 EOF 位置调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
+
+系统调用 [`write`](https://man7.org/linux/man-pages/man2/write.2.html#DESCRIPTION) 用于将数据写入一个打开的文件中：
+
+```c
+#include <unistd.h>
+
+ssize_t write(int fd, const void *buffer, size_t count);
+```
+
+参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始。调用成功时返回实际写入的字节数并且文件偏移量增加相应的数字（如果打开的文件使用了 `O_APPEND` 文件状态标志则将总是将其设为 EOF 位置），注意：<font color=red>**文件偏移量的调整和写操作被合并为一个原子操作**</font>（2.1节）。同样地，实际写入的字节数小于 `count` 也是可能的。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
+
+最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲（3.1节），唯一保证数据被写入磁盘的方式是在写完所有数据后调用 `fsync` 系统调用。
 
