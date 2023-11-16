@@ -114,7 +114,7 @@ ssize_t read(int fd, void *buffer, size_t count);
 
 参数 `count` 用于指定最多能读取的字节数。参数 `buffer` 表示用来存放读入的数据的内存缓冲区的地址，<font color=red>**缓冲区的长度至少应该是 `count` 个字节且必须预先分配**</font>。
 
-读操作会从 **文件偏移量(file offset)** （1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的数字</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 EOF 位置调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
+读操作会从 **文件偏移量(file offset)** （1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 EOF 位置调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
 
 系统调用 [`write`](https://man7.org/linux/man-pages/man2/write.2.html#DESCRIPTION) 用于将数据写入一个打开的文件中：
 
@@ -124,7 +124,40 @@ ssize_t read(int fd, void *buffer, size_t count);
 ssize_t write(int fd, const void *buffer, size_t count);
 ```
 
-参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始。调用成功时返回实际写入的字节数并且文件偏移量增加相应的数字（如果打开的文件使用了 `O_APPEND` 文件状态标志则将总是将其设为 EOF 位置），注意：<font color=red>**文件偏移量的调整和写操作被合并为一个原子操作**</font>（2.1节）。同样地，实际写入的字节数小于 `count` 也是可能的。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
+参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始。调用成功时返回实际写入的字节数并且文件偏移量增加相应的大小（如果打开的文件使用了 `O_APPEND` 文件状态标志则将总是将其设为 EOF 位置），注意：<font color=red>**文件偏移量的调整和写操作被合并为一个原子操作**</font>（2.1节）。同样地，实际写入的字节数小于 `count` 也是可能的。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
 
 最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲（3.1节），唯一保证数据被写入磁盘的方式是在写完所有数据后调用 `fsync` 系统调用。
 
+## 1.3 改变文件偏移量： `lseek` 系统调用
+
+对于每一个打开的文件，内核会记录其 **文件偏移量(file offset, read-write offset or pointer)**，它是执行下一个 `read` 或 `write` 操作的起始位置。文件第一个字节的偏移量为 0，每次打开文件时都会将文件偏移量设置为指向文件开始。使用 [`lseek`](https://man7.org/linux/man-pages/man2/lseek.2.html#DESCRIPTION) 系统调用可以调整文件偏移量：
+
+```c
+#include <unistd.h>
+/* off_t: type of file sizes and offsets */
+off_t lseek(int fd, off_t offset, int whence);
+```
+
+调整后的文件偏移量是将 `whence` 的值和 `offset` 的值相加：
+
+```
+whence == SEEK_SET -> 0 + offset
+whence == SEEK_CUR -> current file offset + offset
+whence == SEEK_END -> size of file + offset
+(Linux 3.1 后增加了 SEEK_DATA 和 SEEK_HOLE 选项，它们和文件空洞有关)
+```
+
+![whence](assets/whence.png)
+
+调用成功时返回新的文件偏移量，所以可以通过 `curr = lseek(fd, 0, SEEK_CUR)` 获取当前的文件偏移量。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/lseek.2.html#ERRORS) 。
+
+下面是 `lseek` 的一些使用示例：
+
+```c
+lseek(fd,   0, SEEK_SET); /* Start of file */
+lseek(fd,   0, SEEK_END); /* Next byte after the end of the file */
+lseek(fd,  -1, SEEK_END); /* Last byte of file */
+lseek(fd, 100, SEEK_END); /* 101 bytes past last byte of file */
+```
+
+<font color=red>**调用 `lseek` 只是调整了内核中和文件描述符相关的文件偏移量记录，而没有任何对物理设备的访问**</font>。还要注意 `lseek` 不适用于所有类型的文件：不允许将其用于管道、FIFO、套接字和终端，否则会调用失败并将 `errno` 设为 `ESPIPE` 。另一方面，`lseek` 也可以用于设备，但标准并没有规定哪些设备必须支持 `lseek` 操作。
