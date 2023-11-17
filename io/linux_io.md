@@ -258,3 +258,15 @@ int main(int argc, char *argv[])
 }
 ```
 
+## 1.5 通用 I/O 模型以外的操作：`ioctl` 系统调用
+
+系统调用 [`ioctl`](https://man7.org/linux/man-pages/man2/ioctl.2.html#DESCRIPTION) 用于访问文件系统或设备的专有功能：
+
+```c
+#include <sys/ioctl.h>
+
+int ioctl(int fd, unsigned long request, ...);
+```
+
+TODO ...
+
