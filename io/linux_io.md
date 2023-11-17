@@ -166,3 +166,95 @@ lseek(fd, 100, SEEK_END); /* 101 bytes past last byte of file */
 
 如果文件的文件偏移量跨过了 `SEEK_END` 的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为 **文件空洞(file holes)** ，对空洞的读取会返回空字节。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
 
+## 1.4 `read`、`write` 和 `lseek` 的应用示例
+
+```c
+/* seek_io.c
+   Usage: seek_io file {r<length>|R<length>|w<string>|s<offset>}...
+
+   This program opens the file named on its command line, and then performs
+   the file I/O operations specified by its remaining command-line arguments:
+
+           r<length>    Read 'length' bytes from the file at current
+                        file offset, displaying them as txt.
+
+           R<length>    Read 'length' bytes from the file at current
+                        file offset, displaying them in hex.
+
+           w<string>    Write 'string' at current file offset.
+
+           s<offset>    Set the file offset to 'offset'.
+*/
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <ctype.h>
+#include "tlpi_hdr.h"
+
+int main(int argc, char *argv[])
+{
+    if (argc < 3 || strcmp(argv[1], "--help") == 0)
+        usageErr("%s file {r<length>|R<length>|w<string>|s<offset>}...\n", argv[0]);
+    
+    int fd = open(argv[1], O_RDWR | O_CREAT,
+                S_IRUSR | S_IWUSR | 
+                S_IRGRP | S_IWGRP |
+                S_IROTH | S_IWOTH); /* rw-rw-rw- */
+    if (fd == -1)
+        errExit("open");
+
+    size_t len;
+    off_t  offset;
+    unsigned char *buf;
+    ssize_t numRead, numWritten;
+
+    for (int ap = 2; ap < argc; ap++) {
+        switch (argv[ap][0]) {
+        case 'r':   /* Display bytes at current offset, as txt */
+        case 'R':   /* Display bytes at current offset, in hex */
+            len = getLong(&argv[ap][1], GN_ANY_BASE, argv[ap]);
+
+            buf = malloc(len);
+            if (buf == NULL)
+                errExit("malloc");
+            numRead = read(fd, buf, len);
+            if (numRead == -1)
+                errExit("read");
+
+            if (numRead == 0) {
+                printf("%s: end-of-file\n", argv[ap]);
+            } else {
+                printf("%s: ", argv[ap]);
+                for (int j = 0; j < numRead; j++) {
+                    if (argv[ap][0] == 'r') {
+                        printf("%c", isprint(buf[j]) ? buf[j] : '?');
+                    } else {
+                        printf("%02x ", buf[j]);
+                    }
+                }
+                printf("\n");
+            }
+            free(buf);
+            break;
+        case 'w':   /* Write string at current offset */
+            numWritten = write(fd, &argv[ap][1], strlen(&argv[ap][1]));
+            if (numWritten == -1)
+                errExit("write");
+            printf("%s: wrote %ld bytes\n", argv[ap], (long) numWritten);
+            break;
+        case 's':   /* Change file offset */
+            offset = getLong(&argv[ap][1], GN_ANY_BASE, argv[ap]);
+            if (lseek(fd, offset, SEEK_SET) == -1)
+                errExit("lseek");
+            printf("%s: seek succeeded\n", argv[ap]);
+            break;
+        default:
+            cmdLineErr("Argument must start with [rRws]: %s\n", argv[ap]);
+        }
+    }
+
+    if (close(fd) == -1)
+        errExit("close");
+    exit(EXIT_SUCCESS);
+}
+```
+
