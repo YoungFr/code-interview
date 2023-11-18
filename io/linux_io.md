@@ -278,3 +278,39 @@ TODO ...
 
 接下来展示两个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的访问模式（1.1节）来消除竞争条件。
 
+第一个例子尝试使用下面的错误代码来独占地打开一个文件：
+
+```c
+// bad code!!!
+fd = open(argv[1], O_WRONLY);       /* Check if file exists */
+if (fd != -1) {                     /* Open succeeded */
+    printf("[PID %ld] File \"%s\" already exists\n", (long) getpid(), argv[1]);
+    close(fd);
+} else {
+    if (errno != ENOENT) {          /* Failed for unexpected reason */
+        errExit("open");
+    } else {
+        /* 竞争条件产生的地方 */
+        fd = open(argv[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+        if (fd == -1)
+            errExit("open");
+        printf("[PID %ld] Created file \"%s\" exclusively\n", (long) getpid(), argv[1]);
+    }
+}
+```
+
+进程 A 在第 3-5 行检查文件是否存在，如果不存在则创建并打开它。但是当它执行到第 10 行时，内核调度器可能会判断出进程 A 时间片用尽并将 CPU 使用权交给 B 进程。假设 B 进程也执行了 `fd = open(argv[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);` 操作，随后 B 进程时间片用尽并将 CPU 再次交给 A 进程，此时执行第 11 行必然成功。于是 A 进程认为自己创建了该文件，但实际上该文件是由 B 进程创建的。
+
+问题在于 A 进程的检查和创建文件不是原子操作，通过使用 `O_EXCL` 文件创建标志可以将检查和创建文件纳入同一原子操作，它保证了确实是当前的 `open` 调用创建了文件，如果文件已经存在会调用失败并将 `errno` 设为 `EEXIST`。
+
+第二个例子是在在多个进程中执行以下操作向同一个文件写入数据：
+
+```c
+if (lseek(fd, 0, SEEK_END) == -1)
+    errExit("lseek");
+/* 竞争条件产生的地方 */
+if (write(fd, buf, len) != len)
+    fatal("partial/failed write");
+```
+
+以 `A(1,2) -> B(1,2) -> B(4,5) -> A(4,5)` 的顺序执行，A 进程会将 B 进程写入的数据覆盖。通过使用 `O_APPEND` 文件状态标志可以将改变文件偏移量和写操作纳入同一原子操作。
