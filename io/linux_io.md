@@ -356,3 +356,23 @@ if (fcntl(fd, F_SETFL, flags) == -1)
 
 设置文件状态标志非常适用于文件不是由当前进程打开以及文件描述符是通过 `pipe` 或 `socket` 等系统调用获得时的情况。
 
+## 2.3 文件描述符和打开文件之间的关系
+
+TODO
+
+## 2.4 复制文件描述符：`dup`、`dup2` 和 `dup3` 系统调用
+
+TODO
+
+## 2.5 在特定文件偏移量处的 I/O：`pread` 和 `pwrite` 系统调用
+
+TODO
+
+## 2.6 分散输入和集中输出：`readv` 和 `writev` 系统调用
+
+TODO
+
+## 2.7 截断文件：`truncate` 和 `ftruncate` 系统调用
+
+TODO
+
