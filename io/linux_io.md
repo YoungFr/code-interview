@@ -270,3 +270,11 @@ int ioctl(int fd, unsigned long request, ...);
 
 TODO ...
 
+# 2. File I/O Details
+
+## 2.1 原子性和竞争条件
+
+<font color=red>**所有系统调用都是以原子操作的方式执行的**</font>，内核会保证一个系统调用的所有操作步骤都会一次性执行完成，期间不会被其他进程或线程中断。原子性的存在规避了 **竞争条件(race condition or race hazard)** ，即<font color=red>**操作共享资源的两个进程的执行结果取决于它们获得 CPU 使用权的先后顺序**</font>。
+
+接下来展示两个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的[访问模式](#1.1 打开和关闭文件：`open` 和 `close` 系统调用)来消除竞争条件。
+
