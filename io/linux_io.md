@@ -6,7 +6,7 @@
 
 文件是 Unix 哲学的中心思想，本节聚焦于磁盘文件的 I/O 。
 
-所有和 I/O 相关的系统调用都使用 **文件描述符 (file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
+所有和 I/O 相关的系统调用都使用**文件描述符 (file descriptor)**来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
 
 文件操作的主要系统调用是 `fd = open(pathname, flags, mode)` 、`numread = read(fd, buffer, count)` 、`numwritten = write(fd, buffer, count)` 和 `status = close(fd)` 。文件 `copy.c` 使用这 4 个系统调用实现了一个简化的 [`cp(1)`](https://man7.org/linux/man-pages/man1/cp.1.html) 命令。
 
@@ -79,13 +79,13 @@ int main(int argc, char *argv[])
 int open(const char *pathname, int flags, ... /* mode_t mode */);
 ```
 
-参数 `flags` 用于指定文件的 **访问模式(access mode)** ，可选的值被划分为三组：**文件访问模式标志(file access mode flags)** (`O_RDONLY`, `O_WRONLY`, `O_RDWR`) 、**文件创建标志(file creation flags)** (`O_CLOEXEC`, `O_CREAT`, `O_DIRECTORY`, `O_EXCL`, `O_NOCTTY`, `O_NOFOLLOW`, `O_TMPFILE`, `O_TRUNC`) 和 **文件状态标志(file status flags)** (剩余所有值) 。<font color=red>**参数 `flags` 必须指定且只能指定一个文件访问模式标志**</font>，剩余两组中的值则可以指定零个或多个。
+参数 `flags` 用于指定文件的**访问模式(access mode)**，可选的值被划分为三组：**文件访问模式标志(file access mode flags)**（`O_RDONLY`, `O_WRONLY`, `O_RDWR`）、**文件创建标志(file creation flags)**（`O_CLOEXEC`, `O_CREAT`, `O_DIRECTORY`, `O_EXCL`, `O_NOCTTY`, `O_NOFOLLOW`, `O_TMPFILE`, `O_TRUNC`）和**文件状态标志(file status flags)**（`O_APPEND`, `O_ASYNC`, `O_DIRECT`, `O_DSYNC`, `O_LARGEFILE`, `O_NOATIME`, `O_NONBLOCK`或`O_NDELAY`, `O_PATH`, `O_SYNC`）。<font color=red>**参数 `flags` 必须指定且只能指定一个文件访问模式标志**</font>，剩余两组中的值则可以指定零个或多个。
 
-参数 `mode` 用于指定创建一个新文件时的 **访问权限(permissions)** ，这个参数只在 `flags` 指定了 `O_CREAT` 或 `O_TMPFILE` 时有效，可选的值及含义见 [这里](https://man7.org/linux/man-pages/man2/open.2.html#DESCRIPTION) 。要注意的是文件的访问权限不仅依赖于参数 `mode` 的值，还受到进程的 `umask` 值和（可能存在的）父目录的默认访问控制列表的影响。
+参数 `mode` 用于指定创建一个新文件时的**访问权限(permissions)**，这个参数只在 `flags` 指定了 `O_CREAT` 或 `O_TMPFILE` 时有效（此时必须设置 `mode` 参数，否则编译会报错），可选的值及含义见 [这里](https://man7.org/linux/man-pages/man2/open.2.html#DESCRIPTION) 。要注意的是文件的访问权限不仅依赖于参数 `mode` 的值，还受到进程的 `umask` 值和（可能存在的）父目录的默认访问控制列表的影响。
 
 调用成功时 `open` 返回一个文件描述符，<font color=red>**且保证是当前进程未使用的文件描述符中的最小者**</font>。调用失败时返回 -1 且会将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/open.2.html#ERRORS) 。
 
-> PS：在早期的 UNIX 实现中，`open` 只有两个参数且不能用于新建文件。系统调用 `creat` 专门用于创建并打开一个新文件，它等价于调用 `open(pathname, O_CREAT | O_WRONLY | O_TRUNC, mode)` 。但是由于 `open` 对文件的打开方式控制更加灵活，所以现在已很少使用 `creat` 系统调用。
+> PS：在早期的 UNIX 实现中，`open` 只有两个参数且不能用于新建文件。系统调用 `creat(pathname, mode)` 专门用于创建并打开一个新文件，它等价于调用 `open(pathname, O_CREAT | O_WRONLY | O_TRUNC, mode)` 。但是由于 `open` 对文件的打开方式控制更加灵活，所以现在已很少使用 `creat` 系统调用。
 
 系统调用 [`close`](https://man7.org/linux/man-pages/man2/close.2.html#DESCRIPTION) 用于关闭一个打开的文件描述符：
 
@@ -114,7 +114,7 @@ ssize_t read(int fd, void *buffer, size_t count);
 
 参数 `count` 用于指定最多能读取的字节数。参数 `buffer` 表示用来存放读入的数据的内存缓冲区的地址，<font color=red>**缓冲区的长度至少应该是 `count` 个字节且必须预先分配**</font>。
 
-读操作会从 **文件偏移量(file offset)** （1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 EOF 位置调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
+读操作会从**文件偏移量(file offset)**（1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 `SEEK_END` 位置（1.3节）调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
 
 系统调用 [`write`](https://man7.org/linux/man-pages/man2/write.2.html#DESCRIPTION) 用于将数据写入一个打开的文件中：
 
@@ -130,7 +130,7 @@ ssize_t write(int fd, const void *buffer, size_t count);
 
 ## 1.3 改变文件偏移量： `lseek` 系统调用
 
-对于每一个打开的文件，内核会记录其 **文件偏移量(file offset, read-write offset or pointer)**，它是执行下一个 `read` 或 `write` 操作的起始位置。文件第一个字节的偏移量为 0，每次打开文件时都会将文件偏移量设置为指向文件开始。使用 [`lseek`](https://man7.org/linux/man-pages/man2/lseek.2.html#DESCRIPTION) 系统调用可以调整文件偏移量：
+对于每一个打开的文件，内核会记录其**文件偏移量(file offset, read-write offset or pointer)**，它是执行下一个 `read` 或 `write` 操作的起始位置。文件第一个字节的偏移量为 0，每次打开文件时都会将文件偏移量设置为指向文件开始。使用 [`lseek`](https://man7.org/linux/man-pages/man2/lseek.2.html#DESCRIPTION) 系统调用可以调整文件偏移量：
 
 ```c
 #include <unistd.h>
@@ -164,7 +164,7 @@ lseek(fd, 100, SEEK_END); /* 101 bytes past last byte of file */
 
 ### 文件空洞（file holes）
 
-如果文件的文件偏移量跨过了 `SEEK_END` 的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为 **文件空洞(file holes)** ，对空洞的读取会返回空字节（`'\0'`）。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
+如果文件的文件偏移量跨过了 `SEEK_END` 的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为**文件空洞(file holes)**，对空洞的读取会返回空字节（`'\0'`）。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
 
 ## 1.4 `read`、`write` 和 `lseek` 的应用示例
 
@@ -274,7 +274,7 @@ TODO ...
 
 ## 2.1 原子性和竞争条件
 
-<font color=red>**所有系统调用都是以原子操作的方式执行的**</font>，内核会保证一个系统调用的所有操作步骤都会一次性执行完成，期间不会被其他进程或线程中断。原子性的存在规避了 **竞争条件(race condition or race hazard)** ，即<font color=red>**操作共享资源的两个进程的执行结果取决于它们获得 CPU 使用权的先后顺序**</font>。
+<font color=red>**所有系统调用都是以原子操作的方式执行的**</font>，内核会保证一个系统调用的所有操作步骤都会一次性执行完成，期间不会被其他进程或线程中断。原子性的存在规避了**竞争条件(race condition or race hazard)**，即<font color=red>**操作共享资源的两个进程的执行结果取决于它们获得 CPU 使用权的先后顺序**</font>。
 
 接下来展示两个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的访问模式（1.1节）来消除竞争条件。
 
@@ -303,9 +303,10 @@ if (fd != -1) {                     /* Open succeeded */
 
 问题在于 A 进程的检查和创建文件不是原子操作，通过使用 `O_EXCL` 文件创建标志可以将检查和创建文件纳入同一原子操作，它保证了确实是当前的 `open` 调用创建了文件，如果文件已经存在会调用失败并将 `errno` 设为 `EEXIST`。
 
-第二个例子是在在多个进程中执行以下操作向同一个文件写入数据：
+第二个例子是在多个进程中执行以下操作向同一个文件写入数据：
 
 ```c
+// bad code!!!
 if (lseek(fd, 0, SEEK_END) == -1)
     errExit("lseek");
 /* 竞争条件产生的地方 */
@@ -313,4 +314,45 @@ if (write(fd, buf, len) != len)
     fatal("partial/failed write");
 ```
 
-以 `A(1,2) -> B(1,2) -> B(4,5) -> A(4,5)` 的顺序执行，A 进程会将 B 进程写入的数据覆盖。通过使用 `O_APPEND` 文件状态标志可以将改变文件偏移量和写操作纳入同一原子操作。
+以 `A(2,3) -> B(2,3) -> B(5,6) -> A(5,6)` 的顺序执行，A 进程会将 B 进程写入的数据覆盖。通过使用 `O_APPEND` 文件状态标志可以将改变文件偏移量和写操作纳入同一原子操作。
+
+## 2.2 文件控制：`fcntl` 系统调用
+
+系统调用 [`fcntl`](https://man7.org/linux/man-pages/man2/fcntl.2.html#DESCRIPTION) 用于对一个打开的文件描述符执行控制操作：
+
+```c
+#include <fcntl.h>
+
+int fcntl(int fd, int cmd, ... /* arg */);
+```
+
+要执行的操作类型和可选的第三个参数都是由参数 `cmd` 控制的。调用成功时的 [返回值](https://man7.org/linux/man-pages/man2/fcntl.2.html#RETURN_VALUE) 取决于操作类型，调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/fcntl.2.html#ERRORS) 。
+
+`fcntl` 支持的操作非常多。其中之一是获取或修改一个文件的访问模式标志（`O_RDONLY`, `O_WRONLY`, `O_RDWR`）和文件状态标志（`O_APPEND`, `O_ASYNC`, `O_DIRECT`, `O_DSYNC`, `O_LARGEFILE`, `O_NOATIME`, `O_NONBLOCK`或`O_NDELAY`, `O_PATH`, `O_SYNC`）。
+
+获取时要将第二个参数设为 `F_GETFL` 且不需要第三个参数。对于文件状态标志，应该将返回值和要判断的值相与；对于访问模式标志，要先将返回值和 `O_ACCMODE` 相与，然后再和要判断的值比较：
+
+```c
+int flags, accessMode;
+flags = fcntl(fd, F_GETFL);
+if (flags == -1)
+    errExit("fcntl");
+if (flags & O_APPEND)
+    printf("append only\n");
+if ((accessMode = flags & O_ACCMODE) == O_RDWR)
+    printf("readable and writable\n");
+```
+
+如果将第二个参数设为 `F_SETFL` 则可以修改打开文件的状态标志。在 Linux 上只允许设置 `O_APPEND`, `O_ASYNC`, `O_DIRECT`, `O_NOATIME` 和 `O_NONBLOCK` 这几个值（但在其他 UNIX 实现中设置 `O_SYNC` 也是可能的），具体做法是先获取当前标志的副本，修改需要设置的标志后调用 `F_SETFL` 命令：
+
+```c
+int flags;
+if ((flags = fcntl(fd, F_GETFL)) == -1)
+    errExit("fcntl get flags");
+flags |= O_APPEND;
+if (fcntl(fd, F_SETFL, flags) == -1)
+    errExit("fcntl set flags");
+```
+
+设置文件状态标志非常适用于文件不是由当前进程打开以及文件描述符是通过 `pipe` 或 `socket` 等系统调用获得时的情况。
+
