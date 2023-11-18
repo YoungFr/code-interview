@@ -6,7 +6,7 @@
 
 文件是 Unix 哲学的中心思想，本节聚焦于磁盘文件的 I/O 。
 
-所有和 I/O 相关的系统调用都使用**文件描述符 (file descriptor)**来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
+所有和 I/O 相关的系统调用都使用**文件描述符(file descriptor)**来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
 
 文件操作的主要系统调用是 `fd = open(pathname, flags, mode)` 、`numread = read(fd, buffer, count)` 、`numwritten = write(fd, buffer, count)` 和 `status = close(fd)` 。文件 `copy.c` 使用这 4 个系统调用实现了一个简化的 [`cp(1)`](https://man7.org/linux/man-pages/man1/cp.1.html) 命令。
 
@@ -138,7 +138,7 @@ ssize_t write(int fd, const void *buffer, size_t count);
 off_t lseek(int fd, off_t offset, int whence);
 ```
 
-调整后的文件偏移量是将 `whence` 的值和 `offset` 的值相加：
+调整后的文件偏移量是将参数 `whence` 所指代的文件偏移量的值和 `offset` 的值相加：
 
 ```
 whence == SEEK_SET -> 0 + offset
@@ -164,7 +164,7 @@ lseek(fd, 100, SEEK_END); /* 101 bytes past last byte of file */
 
 ### 文件空洞（file holes）
 
-如果文件的文件偏移量跨过了 `SEEK_END` 的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为**文件空洞(file holes)**，对空洞的读取会返回空字节（`'\0'`）。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
+如果文件的文件偏移量跨过了 `SEEK_END` 所指代的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为**文件空洞(file holes)**，对空洞的读取会返回空字节（`'\0'`）。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
 
 ## 1.4 `read`、`write` 和 `lseek` 的应用示例
 
