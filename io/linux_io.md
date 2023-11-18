@@ -6,7 +6,7 @@
 
 文件是 Unix 哲学的中心思想，本节聚焦于磁盘文件的 I/O 。
 
-所有和 I/O 相关的系统调用都使用**文件描述符(file descriptor)**来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
+所有和 I/O 相关的系统调用都使用 **文件描述符(file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
 
 文件操作的主要系统调用是 `fd = open(pathname, flags, mode)` 、`numread = read(fd, buffer, count)` 、`numwritten = write(fd, buffer, count)` 和 `status = close(fd)` 。文件 `copy.c` 使用这 4 个系统调用实现了一个简化的 [`cp(1)`](https://man7.org/linux/man-pages/man1/cp.1.html) 命令。
 
@@ -114,7 +114,7 @@ ssize_t read(int fd, void *buffer, size_t count);
 
 参数 `count` 用于指定最多能读取的字节数。参数 `buffer` 表示用来存放读入的数据的内存缓冲区的地址，<font color=red>**缓冲区的长度至少应该是 `count` 个字节且必须预先分配**</font>。
 
-读操作会从**文件偏移量(file offset)**（1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 `SEEK_END` 位置（1.3节）调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
+读操作会从**文件偏移量(file offset)**（1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 `SEEK_END` 所指代的位置（1.3节）调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
 
 系统调用 [`write`](https://man7.org/linux/man-pages/man2/write.2.html#DESCRIPTION) 用于将数据写入一个打开的文件中：
 
