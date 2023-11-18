@@ -6,12 +6,12 @@
 
 文件是 Unix 哲学的中心思想，本节聚焦于磁盘文件的 I/O 。
 
-所有和 I/O 相关的系统调用都使用 **文件描述符 (file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入、标准输出和标准错误这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承这三个文件描述符。
+所有和 I/O 相关的系统调用都使用 **文件描述符 (file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
 
 文件操作的主要系统调用是 `fd = open(pathname, flags, mode)` 、`numread = read(fd, buffer, count)` 、`numwritten = write(fd, buffer, count)` 和 `status = close(fd)` 。文件 `copy.c` 使用这 4 个系统调用实现了一个简化的 [`cp(1)`](https://man7.org/linux/man-pages/man1/cp.1.html) 命令。
 
 ```
-手册页中的命令、系统调用、库函数等名字后边的小括号中的数字表示它归属于哪一个章节：
+PS：手册页中的命令、系统调用、库函数等名字后边的小括号中的数字表示它归属于哪一个章节
 1 - 用户命令(user commands)
 2 - 系统调用(system calls)
 3 - 库函数(library functions)
@@ -126,7 +126,7 @@ ssize_t write(int fd, const void *buffer, size_t count);
 
 参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始。调用成功时返回实际写入的字节数并且文件偏移量增加相应的大小（如果打开的文件使用了 `O_APPEND` 文件状态标志则将总是将其设为 EOF 位置），注意：<font color=red>**文件偏移量的调整和写操作被合并为一个原子操作**</font>（2.1节）。同样地，实际写入的字节数小于 `count` 也是可能的。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
 
-最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲（3.1节），唯一保证数据被写入磁盘的方式是在写完所有数据后调用 `fsync` 系统调用。
+最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲（3.1节），唯一保证数据被写入磁盘的方式是在写完所有数据后使用 `fsync` 系统调用。
 
 ## 1.3 改变文件偏移量： `lseek` 系统调用
 
@@ -144,7 +144,7 @@ off_t lseek(int fd, off_t offset, int whence);
 whence == SEEK_SET -> 0 + offset
 whence == SEEK_CUR -> current file offset + offset
 whence == SEEK_END -> size of file + offset
-(Linux 3.1 后增加了 SEEK_DATA 和 SEEK_HOLE 选项，它们和文件空洞有关)
+(从 Linux 3.1 开始增加了 SEEK_DATA 和 SEEK_HOLE 选项，它们和文件空洞有关)
 ```
 
 ![whence](assets/whence.png)
@@ -164,7 +164,7 @@ lseek(fd, 100, SEEK_END); /* 101 bytes past last byte of file */
 
 ### 文件空洞（file holes）
 
-如果文件的文件偏移量跨过了 `SEEK_END` 的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为 **文件空洞(file holes)** ，对空洞的读取会返回空字节。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
+如果文件的文件偏移量跨过了 `SEEK_END` 的位置，对 `read` 的调用会返回 0，<font color=red>**但是调用 `write` 却可以向文件结尾后的任意位置写入数据**</font>。从文件结尾后到新写入数据之间的这段空间被称为 **文件空洞(file holes)** ，对空洞的读取会返回空字节（`'\0'`）。文件空洞（准确来说是完全落在块内的空洞，详见文件系统）不占用任何磁盘空间，直到后续向空洞中写入数据时，文件系统才会为其分配磁盘块。这就导致了<font color=red>**一个文件名义上的大小可能要比其实际占用的磁盘空间要大（甚至是大得多）**</font>。
 
 ## 1.4 `read`、`write` 和 `lseek` 的应用示例
 
@@ -276,5 +276,5 @@ TODO ...
 
 <font color=red>**所有系统调用都是以原子操作的方式执行的**</font>，内核会保证一个系统调用的所有操作步骤都会一次性执行完成，期间不会被其他进程或线程中断。原子性的存在规避了 **竞争条件(race condition or race hazard)** ，即<font color=red>**操作共享资源的两个进程的执行结果取决于它们获得 CPU 使用权的先后顺序**</font>。
 
-接下来展示两个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的[访问模式](#1.1 打开和关闭文件：`open` 和 `close` 系统调用)来消除竞争条件。
+接下来展示两个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的访问模式（1.1节）来消除竞争条件。
 
