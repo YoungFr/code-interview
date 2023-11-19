@@ -360,13 +360,13 @@ if (fcntl(fd, F_SETFL, flags) == -1)
 
 我们通过查看内核维护的三个数据结构来理解文件描述符和打开文件之间的关系：
 
-- 进程级文件描述符表（per-process file descriptor table）
-- 系统级打开文件描述表（system-wide table of open file descriptions）
-- 文件系统的 i-node 表（file system i-node table）
+- **进程级文件描述符表(per-process file descriptor table)**
+- **系统级打开文件描述表(system-wide table of open file descriptions)**
+- **文件系统的 i-node 表(file system i-node table)**
 
-对于每个进程，内核为其维护打开文件描述符表。该表的每一行都记录了一个文件描述符的相关信息，包括一组控制文件描述符操作的标志（目前只有 `close-on-exec` 标志，和 `exec` 系统调用有关）和一个对打开文件描述表中某条表项的引用。
+对于每个进程，内核为其维护打开文件描述符表。该表的每一行都记录了一个文件描述符的相关信息，包括一组控制文件描述符操作的标志（目前只有 `close-on-exec` 标志，与 `fork` 和 `execve` 系统调用有关）和一个对打开文件描述表中某条表项的引用，每个表项称为**打开文件描述(open file description)** 。
 
-内核对所有打开的文件维护打开文件描述表，简称打开文件表（open file table）。每条表项包含所有和打开文件相关的信息，包括文件偏移量（1.3节）、文件访问模式标志（1.1节）、文件状态标志（1.1节）、与信号驱动（signal-driven） I/O 相关的设置和对 i-node 对象的引用。
+内核对所有打开的文件维护打开文件描述表，简称**打开文件表(open file table)**。每条表项包含所有和打开文件相关的信息，包括文件偏移量（1.3节）、文件访问模式标志（1.1节）、文件状态标志（1.1节）、与信号驱动(signal-driven) I/O 相关的设置和对 i-node 对象的引用。
 
 每个文件系统为驻留其上的所有文件维护一个 i-node 表（详见文件系统），每个文件的 i-node 信息包括文件类型、访问权限、指向文件锁列表的指针和文件的其他各种属性。
 
@@ -378,7 +378,34 @@ if (fcntl(fd, F_SETFL, flags) == -1)
 
 ## 2.4 复制文件描述符：`dup`、`dup2` 和 `dup3` 系统调用
 
-TODO
+系统调用 [`dup`](https://man7.org/linux/man-pages/man2/dup.2.html#DESCRIPTION) 和 [`dup2`](https://man7.org/linux/man-pages/man2/dup.2.html#DESCRIPTION)用于复制文件描述符：
+
+```c
+#include <unistd.h>
+
+int dup(int oldfd);
+int dup2(int oldfd, int newfd);
+```
+
+`dup` 可以分配一个新的文件描述符，新分配的文件描述符和 `oldfd` 文件描述符指向打开文件表中的同一个**打开文件描述(open file description)**，就像 2.3 节中进程 A 的文件描述符 1 和 20 所展示的情形那样。<font color=red>**系统会保证新返回的文件描述符是调用进程中未使用的文件描述符中的最小者**</font>。 显然，在调用成功后，两个文件描述符会共享文件偏移量和文件状态标志；但是却不共享文件描述符标志（`close-on-exec` 标志），而且新返回的文件描述符的 `close-on-exec` 标志总是关闭的。
+
+`dup2` 与 `dup` 的唯一区别在于它返回的文件描述符由参数 `newfd` 指定。如果文件描述符 `newfd` 在这之前已经打开了，那么 `dup2` 会以原子操作的方式将其关闭然后再重用之（**这会导致 `dup2` 忽略关闭时产生的任何错误，所以更为安全的做法是在调用 `dup2` 前，如果 `newfd` 已经打开，则显示调用 `close` 将其关闭**）。如果 `oldfd` 和 `newfd` 相等，`dup2` 什么也不做直接返回 `newfd` 。
+
+将 `fcntl` 系统调用（2.2节）的参数 `cmd` 设为 `F_DUPFD` 也可以用来复制文件描述符：`newfd = fcntl(oldfd, F_DUPFD, startfd)` ，它和 `dup2` 的区别在于它会使用大于等于 `startfd` 的最小可用文件描述符（也就是说如果 `startfd` 已经打开则不会关闭它，而是继续寻找比它大的可用文件描述符）。 
+
+[`dup3`](https://man7.org/linux/man-pages/man2/dup3.2.html#DESCRIPTION) 是 Linux 专有的系统调用（Since Linux 2.6.27），它和 `dup2` 的唯一区别在于它会打开新返回的文件描述符的 `close-on-exec` 标志：
+
+```c
+#define _GNU_SOURCE             /* See feature_test_macros(7) */
+#include <fcntl.h>              /* Definition of O_* constants */
+#include <unistd.h>
+
+int dup3(int oldfd, int newfd, int flags);
+```
+
+前两个参数的含义和 `dup2` 相同，第三个参数 `flags` 目前只能设置为 `O_CLOEXEC` 。如果 `oldfd` 和 `newfd` 相等，`dup3` 会调用失败并将 `errno` 设置为 `EINVAL` 。`dup3` 也有类似的 `fcntl` 版本（Since Linux 2.6.24），此时需要将 `cmd` 设为 `F_DUPFD_CLOEXEC` 。
+
+`dup` 、`dup2` 和 `dup3` 在调用失败时都会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/dup.2.html#ERRORS) 。
 
 ## 2.5 在特定文件偏移量处的 I/O：`pread` 和 `pwrite` 系统调用
 
