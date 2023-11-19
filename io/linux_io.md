@@ -409,7 +409,24 @@ int dup3(int oldfd, int newfd, int flags);
 
 ## 2.5 在特定文件偏移量处的 I/O：`pread` 和 `pwrite` 系统调用
 
-TODO
+系统调用 [`pread`](https://man7.org/linux/man-pages/man2/pread.2.html) 和 [`pwrite`](https://man7.org/linux/man-pages/man2/pwrite.2.html) 的作用与 `read` 和 `write` 类似，只是它们会在由参数 `offset` 指定的文件偏移量处进行 I/O 操作，而且不会改变文件的文件偏移量。这使得它们在多线程程序中大有用武之地：
+
+```c
+_XOPEN_SOURCE >= 500 || _POSIX_C_SOURCE >= 200809L
+#include <unistd.h>
+
+ssize_t pread(int fd, void *buf, size_t count, off_t offset);
+ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
+```
+
+系统调用 `pread` 相当于将以下操作纳入一个原子操作：
+
+```c
+off_t orig = lseek(fd, 0, SEEK_CUR); /* Save */
+lseek(fd, offset, SEEK_SET);         /* Seek */
+read(fd, buf, count);                /* Read */
+lseek(fd, orig, SEEK_SET);           /* Restore */
+```
 
 ## 2.6 分散输入和集中输出：`readv` 和 `writev` 系统调用
 
