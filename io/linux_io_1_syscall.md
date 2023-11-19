@@ -4,7 +4,7 @@
 
 # 1. File I/O
 
-文件是 Unix 哲学的中心思想，本节聚焦于磁盘文件的 I/O 。
+文件是 Unix 哲学的中心思想，接下来两章聚焦于磁盘文件的 I/O 。
 
 所有和 I/O 相关的系统调用都使用 **文件描述符(file descriptor)** 来指代打开的文件，这些文件包括管道、FIFO、套接字、终端、设备和普通文件。<font color=red>**每个进程都有它自己的打开的文件描述符的集合**</font>。在 shell 的日常操作中，标准输入（`STDIN_FILENO`）、标准输出（`STDOUT_FILENO`）和标准错误（`STDERR_FILENO`）这三个文件描述符始终是打开的。所以通过 shell 启动的程序也会继承打开这三个文件描述符。
 
@@ -126,7 +126,7 @@ ssize_t write(int fd, const void *buffer, size_t count);
 
 参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始。调用成功时返回实际写入的字节数并且文件偏移量增加相应的大小，注意：<font color=red>**如果在打开文件时使用了 `O_APPEND` 文件状态标志，在每次写入前会首先将文件偏移量移动到 `SEEK_END`位置，且文件偏移量的调整和写操作被合并为一个原子操作**</font>（2.1节）。同样地，实际写入的字节数小于 `count` 也是可能的。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
 
-最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲（3.1节），唯一保证数据被写入磁盘的方式是在写完所有数据后使用 `fsync` 系统调用。
+最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲，唯一保证数据被写入磁盘的方式是在写完所有数据后使用 `fsync` 系统调用。
 
 ## 1.3 改变文件偏移量： `lseek` 系统调用
 
