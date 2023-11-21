@@ -519,5 +519,15 @@ ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);
 
 ## 2.7 截断文件：`truncate` 和 `ftruncate` 系统调用
 
-TODO
+系统调用 [`truncate`](https://man7.org/linux/man-pages/man2/truncate.2.html#DESCRIPTION) 和 [`ftruncate`](https://man7.org/linux/man-pages/man2/ftruncate.2.html#DESCRIPTION) 用于将文件大小设置为参数 `length` 指定的值：
 
+```c
+#include <unistd.h>
+
+int truncate(const char *path, off_t length);
+int ftruncate(int fd, off_t length);
+```
+
+如果文件的长度小于 `length`，将在尾部添加一系列 `\0` 字节（符合 XSI 标准的系统，Linux 符合这一标准）。注意该调用<font color=red>**不会修改文件偏移量**</font>（这很重要，因为 `write` 可以在任意文件偏移量处写入）。
+
+调用成功时返回 0，失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/truncate.2.html#ERRORS) 。
