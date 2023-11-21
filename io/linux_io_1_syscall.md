@@ -430,7 +430,92 @@ lseek(fd, orig, SEEK_SET);           /* Restore */
 
 ## 2.6 分散输入和集中输出：`readv` 和 `writev` 系统调用
 
-TODO
+系统调用 [`readv`](https://man7.org/linux/man-pages/man2/readv.2.html#DESCRIPTION) 和 [`writev`](https://man7.org/linux/man-pages/man2/writev.2.html#DESCRIPTION) 用于实现 **分散输入(scatter input)** 和 **集中输出(gather output)** 。这意味这它们一次性（**原子地**）读写多个缓冲区：
+
+```c
+#include <sys/uio.h>
+
+ssize_t readv(int  fd, const struct iovec *iov, int iovcnt);
+ssize_t writev(int fd, const struct iovec *iov, int iovcnt);
+```
+
+参数 `fd` 是要读写的文件描述符，参数 `iov` 是指向 [`iovec`](https://man7.org/linux/man-pages/man3/iovec.3type.html) 结构体数组的指针。结构体 `iovec` 被称为**向量 I/O 数据结构(vector I/O data structure)**，它的定义如下：
+
+```c
+#include <sys/uio.h>
+
+struct iovec {
+   void   *iov_base;  /* Starting address */
+   size_t  iov_len;   /* Size of the memory pointed to by iov_base */
+};
+```
+
+参数 `iovcnt` 则是数组中元素的个数，它的最大值受到 `<limits.h>` 头文件中定义的 `IOV_MAX` 宏的限制。参数 `iov` 和 `iovcnt` 的关系如下图所示：
+
+![iov](assets/iov.png)
+
+调用 `readv` 会从文件中连续读取字节并依次放置在 `iov[0]`，`iov[1]`，... ，`iov[iovcnt-1]` 的缓冲区中，执行成功时会返回实际读取的字节数：
+
+```c
+#include <sys/stat.h>
+#include <sys/uio.h>
+#include <fcntl.h>
+#include "tlpi_hdr.h"
+
+#define STR_SIZE 100
+
+int main(int argc, char *argv[])
+{
+    if (argc != 2 || strcmp(argv[1], "--help") == 0)
+        usageErr("%s file\n", argv[0]);
+    
+    int fd = open(argv[1], O_RDONLY);
+    if (fd == -1)
+        errExit("open");
+    
+    struct iovec iov[3];
+    struct stat myStruct; /* 1st buffer */
+    int    x;             /* 2nd buffer */
+    char   str[STR_SIZE]; /* 3rd buffer */
+    
+    ssize_t totRequired = 0;
+
+    iov[0].iov_base = &myStruct;
+    iov[0].iov_len  = sizeof(struct stat);
+    totRequired    += iov[0].iov_len;
+
+    iov[1].iov_base = &x;
+    iov[1].iov_len  = sizeof(x);
+    totRequired    += iov[1].iov_len;
+
+    iov[2].iov_base = str;
+    iov[2].iov_len  = STR_SIZE;
+    totRequired    += iov[2].iov_len;
+
+    ssize_t numRead = readv(fd, iov, 3);
+    if (numRead == -1)
+        errExit("readv");
+
+    if (numRead < totRequired)
+        printf("Read fewer bytes than requested\n");
+
+    printf("total bytes requested: %ld; bytes read: %ld\n", (long) totRequired, (long) numRead);
+    exit(EXIT_SUCCESS);
+}
+```
+
+调用 `writev` 则实现相反的操作：首先将所有缓冲区中的数据拼接起来，然后一次性地写到文件中。
+
+从 Linux 2.6.30 开始新增了两个系统调用 `preadv` 和 `pwritev`，它们将 2.5 节和 2.6 节的特性集于一身：
+
+```c
+_DEFAULT_SOURCE // glibc  > 2.19
+_BSD_SOURCE     // glibc <= 2.19
+#include <sys/uio.h>
+
+ssize_t preadv(int  fd, const struct iovec *iov, int iovcnt, off_t offset);
+ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);
+```
 
 ## 2.7 截断文件：`truncate` 和 `ftruncate` 系统调用
 
