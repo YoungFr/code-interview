@@ -73,6 +73,8 @@ func Serial(url string, fetcher Fetcher, fetched map[string]bool) {
 		return
 	}
 	for _, u := range urls {
+		// 仅仅在 Serial 之前加 go 关键字是错误的
+		// 这只是启动了 goroutine 但没有等待它完成
 		Serial(u, fetcher, fetched)
 	}
 }
