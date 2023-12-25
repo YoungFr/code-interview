@@ -11,7 +11,7 @@ package main
 // https://leetcode.cn/problems/rotate-image/description/
 
 func Rotate(matrix [][]int) {
-	// 矩阵各种对称的转移式如下
+	// 记住矩阵各种对称的转移式如下
 	// 上下对称 => 列不变: A[i][j] -> A[n-1-i][j]
 	// 左右对称 => 行不变: A[i][j] -> A[i][n-1-j]
 	// 主对角线对称 => 行列互换: A[i][j] -> A[j][i]
