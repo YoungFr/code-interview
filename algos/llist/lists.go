@@ -1,6 +1,6 @@
 package main
 
-// ___    ___           ___    __    __    ______   .___________.    __    ___     ___
+//  ___    ___           ___    __    __    ______   .___________.    __    ___     ___
 // |__ \  |__ \         /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
 //    ) |    ) |       /  /    |  |__|  | |  |  |  | `---|  |----`    | | | | | | | | | |
 //   / /    / /       /  /     |   __   | |  |  |  |     |  |         | | | | | | | | | |
@@ -87,7 +87,7 @@ func GetIntersectionNode(headA, headB *ListNode) *ListNode {
 	return pa
 }
 
-// ___    ____           ___    __    __    ______   .___________.    __    ___     ___
+//  ___    ____           ___    __    __    ______   .___________.    __    ___     ___
 // |__ \  |___ \         /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
 //    ) |   __) |       /  /    |  |__|  | |  |  |  | `---|  |----`    | | | | | | | | | |
 //   / /   |__ <       /  /     |   __   | |  |  |  |     |  |         | | | | | | | | | |
@@ -148,4 +148,133 @@ func ReverseList(head *ListNode) *ListNode {
 	// head <-  1 <- 2 <- ... <- n
 	head.Next.Next.Next = nil // 这行等价于 head.Next = nil
 	return ans
+}
+
+//  ___    _  _            ___    __    __    ______   .___________.    __    ___     ___
+// |__ \  | || |          /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
+//    ) | | || |_        /  /    |  |__|  | |  |  |  | `---|  |----`    | | | | | | | | | |
+//   / /  |__   _|      /  /     |   __   | |  |  |  |     |  |         | | | | | | | | | |
+//  / /_     | |       /  /      |  |  |  | |  `--'  |     |  |         | | | |_| | | |_| |
+// |____|    |_|      /__/       |__|  |__|  \______/      |__|         |_|  \___/   \___/
+
+// LC 234 - 回文链表
+// https://leetcode.cn/problems/palindrome-linked-list/description/
+
+func IsPalindrome(head *ListNode) bool {
+	// 这道题是非常重要的一道题
+	// 因为它涉及寻找链表的中间节点、反转链表、判断回文等操作
+	// 这些代码都需要能在面试时现场写出来
+
+	// 只有一个节点时是回文链表
+	if head.Next == nil {
+		return true
+	}
+
+	// 使用快慢指针寻找链表的中间节点
+	endOfFirstHalf := func(head *ListNode) *ListNode {
+		slow := head
+		fast := head
+		// 对于长度是奇数的链表
+		// 指针 slow 最终指向最中间的节点
+		// 对于长度是偶数的链表
+		// 指针 slow 最终指向的是前半部分的最后一个节点
+		for fast.Next != nil && fast.Next.Next != nil {
+			slow = slow.Next
+			fast = fast.Next.Next
+		}
+		return slow
+	}
+
+	// LC 206 - 反转链表
+	reverseList := func(head *ListNode) *ListNode {
+		dummy := &ListNode{}
+		curr := head
+		for curr != nil {
+			t := curr
+			curr = curr.Next
+			t.Next = dummy.Next
+			dummy.Next = t
+		}
+		return dummy.Next
+	}
+
+	// 找到前半部分链表的尾节点
+	firstHalfEnd := endOfFirstHalf(head)
+	// 反转后半部分链表
+	secondHalfStart := reverseList(firstHalfEnd.Next)
+	firstHalfEnd.Next = nil
+
+	// 判断是否回文
+	p1 := head
+	p2 := secondHalfStart
+	result := true
+	// 根据前边 endOfFirstHalf 函数返回的结果我们可以知道
+	// 链表长度是偶数 => 前后两条链表的长度相等
+	// 链表长度是奇数 => 前半部分链表的长度比后半部分的长度多一
+	// 所以将 p2 != nil 作为循环条件
+	for p2 != nil {
+		if p1.Val != p2.Val {
+			result = false
+			break
+		}
+		p1 = p1.Next
+		p2 = p2.Next
+	}
+
+	// 还原链表并返回结果
+	firstHalfEnd.Next = reverseList(secondHalfStart)
+	return result
+}
+
+//  ___    _____          ___    __    __    ______   .___________.    __    ___     ___
+// |__ \  | ____|        /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
+//    ) | | |__         /  /    |  |__|  | |  |  |  | `---|  |----`    | | | | | | | | | |
+//   / /  |___ \       /  /     |   __   | |  |  |  |     |  |         | | | | | | | | | |
+//  / /_   ___) |     /  /      |  |  |  | |  `--'  |     |  |         | | | |_| | | |_| |
+// |____| |____/     /__/       |__|  |__|  \______/      |__|         |_|  \___/   \___/
+
+// LC 141 - 环形链表
+// https://leetcode.cn/problems/linked-list-cycle/description/
+
+func HasCycle(head *ListNode) bool {
+	// // 使用哈希表记录访问过的节点 PASS
+	// // 指针从头节点开始不断往后移动
+	// // 如果遇到一个先前访问过的节点
+	// // 说明链表中有环且这个节点就是环的入口
+	// // 这段代码只要修改一下返回值就可以用来
+	// // 解决 LC 142 - 寻找链表中开始入环的第一个节点
+	// vis := make(map[*ListNode]bool)
+	// p := head
+	// for p != nil {
+	//     if vis[p] {
+	//         return true
+	//     }
+	//     vis[p] = true
+	//     p = p.Next
+	// }
+	// return false
+
+	// Floyd 判圈算法 PASS
+	// 如果链表中有环
+	// 一旦指针进入环内就会一直在环内移动
+	// 定义一快一慢的两个指针
+	// 在两个指针进入环中以后它们一定会在某个节点相遇
+
+	if head == nil || head.Next == nil {
+		return false
+	}
+	slow := head
+	fast := head.Next
+	for fast != slow {
+		// 快指针要移动两步
+		// 所以要保证 fast 和 fast.Next 不为空
+		// 因为快指针在慢指针前边
+		// 所以也可以保证 slow 不为空
+		if fast == nil || fast.Next == nil {
+			return false
+		}
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	return true
 }
