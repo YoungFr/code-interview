@@ -16,3 +16,6 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 29. [删除链表的倒数第 N 个节点](./llist/llist29.go)
 30. [2 个一组翻转链表](./llist/llist30.go)
 31. [k 个一组翻转链表](./llist/llist31.go)
+32. 随机链表的复制
+33. 排序链表
+34. [合并 k 个升序链表](./llist/llist34.go)
