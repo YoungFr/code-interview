@@ -114,7 +114,11 @@ ssize_t read(int fd, void *buffer, size_t count);
 
 参数 `count` 用于指定最多能读取的字节数。参数 `buffer` 表示用来存放读入的数据的内存缓冲区的地址，<font color=red>**缓冲区的长度至少应该是 `count` 个字节且必须预先分配**</font>。
 
-读操作会从**文件偏移量(file offset)**（1.3节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>，实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 `SEEK_END` 所指代的位置（1.3节）调用返回 0；调用失败会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) ，<font color=red>在这种情况下，文件偏移量是否发生了改变是不确定的</font>。
+读操作会从**文件偏移量(file offset)**（见 1.3 节）开始。调用成功时返回实际读取的字节数<font color=red>并且文件位置偏移量会增加相应的大小</font>。
+
+> 按理来说，一个进程（线程）的读取操作和更新文件偏移量操作应该被合入一个原子过程，否则两个共享同一文件描述（这里确实是文件描述而不是文件描述符，英文为 file description ，详见 2.3 节）的进程读取的内容有可能是相互重叠的。但是这个问题直到 Linux 3.14 才被修正。详见 read 调用手册页的 [BUGS](https://man7.org/linux/man-pages/man2/read.2.html#BUGS) 一节。
+
+实际读取的字节数小于 `count` 是可能的（比如读取的位置靠近文件尾部），这并不是一个错误；如果文件偏移量位于或越过了 `SEEK_END` 所指代的位置（见 1.3 节）调用返回 0；调用失败则会返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/read.2.html#ERRORS) 。
 
 系统调用 [`write`](https://man7.org/linux/man-pages/man2/write.2.html#DESCRIPTION) 用于将数据写入一个打开的文件中：
 
@@ -124,13 +128,17 @@ ssize_t read(int fd, void *buffer, size_t count);
 ssize_t write(int fd, const void *buffer, size_t count);
 ```
 
-参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始。调用成功时返回实际写入的字节数并且文件偏移量增加相应的大小，注意：<font color=red>**如果在打开文件时使用了 `O_APPEND` 文件状态标志，在每次写入前会首先将文件偏移量移动到 `SEEK_END`位置，且文件偏移量的调整和写操作被合并为一个原子操作**</font>（2.1节）。同样地，实际写入的字节数小于 `count` 也是可能的。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
+参数的含义和 `read` 是类似的。写操作同样从文件偏移量开始，调用成功时返回实际写入的字节数并且文件偏移量增加相应的大小。注意：<font color=red>**如果在打开文件时使用了 `O_APPEND` 文件状态标志，在每次写入前会首先将文件偏移量移动到 `SEEK_END`位置，且文件偏移量的调整和写操作被合并为一个原子操作**</font>。
 
-最后要注意的是：<font color=red>**`write` 调用成功并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲，唯一保证数据被写入磁盘的方式是在写完所有数据后使用 `fsync` 系统调用。
+> 与 read 类似，写操作和更新文件偏移量操作的原子性问题也是在 Linux 3.14 中修复的。
+
+一次成功的 `write` 调用实际写入的字节数小于 `count` 也是有可能的，这被称为部分写，关于这种情况的详细解释见手册页的 [RETURN VALUE](https://man7.org/linux/man-pages/man2/write.2.html#RETURN_VALUE) 一节。调用失败时返回 -1 并将 [`errno`](https://man7.org/linux/man-pages/man3/errno.3.html) 设置为 [相应的错误标志](https://man7.org/linux/man-pages/man2/write.2.html#ERRORS) 。
+
+最后要注意的是：<font color=red>**成功的 `write` 调用并不能保证数据已经写入磁盘**</font>。这是因为文件 I/O 使用了内核缓冲，唯一保证数据被写入磁盘的方式是在写完所有数据后使用 `fsync` 系统调用。
 
 ## 1.3 改变文件偏移量： `lseek` 系统调用
 
-对于每一个打开的文件，内核会记录其**文件偏移量(file offset, read-write offset or pointer)**，它是执行下一个 `read` 或 `write` 操作的起始位置。文件第一个字节的偏移量为 0，每次打开文件时都会将文件偏移量设置为指向文件开始。使用 [`lseek`](https://man7.org/linux/man-pages/man2/lseek.2.html#DESCRIPTION) 系统调用可以调整文件偏移量：
+对于每一个打开的文件，内核会记录其**文件偏移量(file offset, read-write offset or pointer)**，它是执行下一个 `read` 或 `write` 操作的起始位置。文件第一个字节的偏移量为 0，**每次打开文件时都会将文件偏移量设置为指向文件开始**。使用 [`lseek`](https://man7.org/linux/man-pages/man2/lseek.2.html#DESCRIPTION) 系统调用可以调整文件偏移量：
 
 ```c
 #include <unistd.h>
@@ -276,9 +284,7 @@ TODO ...
 
 <font color=red>**所有系统调用都是以原子操作的方式执行的**</font>，内核会保证一个系统调用的所有操作步骤都会一次性执行完成，期间不会被其他进程或线程中断。原子性的存在规避了**竞争条件(race condition or race hazard)**，即<font color=red>**操作共享资源的两个进程的执行结果取决于它们获得 CPU 使用权的先后顺序**</font>。
 
-接下来展示两个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的访问模式（1.1节）来消除竞争条件。
-
-第一个例子尝试使用下面的错误代码来独占地打开一个文件：
+接下来展示一个文件 I/O 中竞争条件的例子以及如何在打开文件指定合适的访问模式（见 1.1 节）来消除竞争条件：
 
 ```c
 // bad code!!!
@@ -302,19 +308,6 @@ if (fd != -1) {                     /* Open succeeded */
 进程 A 在第 3-5 行检查文件是否存在，如果不存在则创建并打开它。但是当它执行到第 10 行时，内核调度器可能会判断出进程 A 时间片用尽并将 CPU 使用权交给 B 进程。假设 B 进程也执行了 `fd = open(argv[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);` 操作，随后 B 进程时间片用尽并将 CPU 再次交给 A 进程，此时执行第 11 行必然成功。于是 A 进程认为自己创建了该文件，但实际上该文件是由 B 进程创建的。
 
 问题在于 A 进程的检查和创建文件不是原子操作，通过使用 `O_EXCL` 文件创建标志可以将检查和创建文件纳入同一原子操作，它保证了确实是当前的 `open` 调用创建了文件，如果文件已经存在会调用失败并将 `errno` 设为 `EEXIST`。
-
-第二个例子是在多个进程中执行以下操作向同一个文件写入数据：
-
-```c
-// bad code!!!
-if (lseek(fd, 0, SEEK_END) == -1)
-    errExit("lseek");
-/* 竞争条件产生的地方 */
-if (write(fd, buf, len) != len)
-    fatal("partial/failed write");
-```
-
-以 `A(2,3) -> B(2,3) -> B(5,6) -> A(5,6)` 的顺序执行，A 进程会将 B 进程写入的数据覆盖。通过使用 `O_APPEND` 文件状态标志可以将改变文件偏移量和写操作纳入同一原子操作。
 
 ## 2.2 文件控制：`fcntl` 系统调用
 
@@ -366,7 +359,7 @@ if (fcntl(fd, F_SETFL, flags) == -1)
 
 对于每个进程，内核为其维护打开文件描述符表。该表的每一行都记录了一个文件描述符的相关信息，包括一组控制文件描述符操作的标志（目前只有 `close-on-exec` 标志，与 `fork` 和 `execve` 系统调用有关）和一个对打开文件描述表中某条表项的引用，每个表项称为**打开文件描述(open file description)** 。
 
-内核对所有打开的文件维护打开文件描述表，简称**打开文件表(open file table)**。每条表项包含所有和打开文件相关的信息，包括文件偏移量（1.3节）、文件访问模式标志（1.1节）、文件状态标志（1.1节）、与信号驱动(signal-driven) I/O 相关的设置和对 i-node 对象的引用。
+内核对所有打开的文件维护打开文件描述表，简称**打开文件表(open file table)**。每条表项包含所有和打开文件相关的信息，包括文件偏移量（见 1.3 节）、文件访问模式标志（见 1.1 节）、文件状态标志（见 1.1 节）、与信号驱动(signal-driven) I/O 相关的设置和对 i-node 对象的引用。
 
 每个文件系统为驻留其上的所有文件维护一个 i-node 表（详见文件系统），每个文件的 i-node 信息包括文件类型、访问权限、指向文件锁列表的指针和文件的其他各种属性。
 
@@ -391,7 +384,7 @@ int dup2(int oldfd, int newfd);
 
 `dup2` 与 `dup` 的唯一区别在于它返回的文件描述符由参数 `newfd` 指定。如果文件描述符 `newfd` 在这之前已经打开了，那么 `dup2` 会以原子操作的方式将其关闭然后再重用之（**这会导致 `dup2` 忽略关闭时产生的任何错误，所以更为安全的做法是在调用 `dup2` 前，如果 `newfd` 已经打开，则显示调用 `close` 将其关闭**）。如果 `oldfd` 和 `newfd` 相等，`dup2` 什么也不做直接返回 `newfd` 。
 
-将 `fcntl` 系统调用（2.2节）的参数 `cmd` 设为 `F_DUPFD` 也可以用来复制文件描述符：`newfd = fcntl(oldfd, F_DUPFD, startfd)` ，它和 `dup2` 的区别在于它会使用大于等于 `startfd` 的最小可用文件描述符（也就是说如果 `startfd` 已经打开则不会关闭它，而是继续寻找比它大的可用文件描述符）。 
+将 `fcntl` 系统调用（见 2.2 节）的参数 `cmd` 设为 `F_DUPFD` 也可以用来复制文件描述符：`newfd = fcntl(oldfd, F_DUPFD, startfd)` ，它和 `dup2` 的区别在于它会使用大于等于 `startfd` 的最小可用文件描述符（也就是说如果 `startfd` 已经打开则不会关闭它，而是继续寻找比它大的可用文件描述符）。 
 
 [`dup3`](https://man7.org/linux/man-pages/man2/dup3.2.html#DESCRIPTION) 是 Linux 专有的系统调用（Since Linux 2.6.27），它和 `dup2` 的唯一区别在于它会打开新返回的文件描述符的 `close-on-exec` 标志：
 
