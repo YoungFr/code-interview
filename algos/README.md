@@ -23,3 +23,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 32. [随机链表的复制]()
 33. [排序链表]()
 34. [合并 k 个升序链表](./llist/llist34.go)
+
+# 堆
+
+74. [数组中的第 k 个最大元素](./heap/heap74.go)
