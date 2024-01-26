@@ -27,3 +27,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 # 堆
 
 74. [数组中的第 k 个最大元素](./heap/heap74.go)
+
+# 技巧
+
+98. [荷兰国旗问题](./skills/skills98.go)

@@ -9,4 +9,4 @@
 1.  [k 个一组反转链表](../algos/llist/llist31.go) 分组反转链表
 1.  三数之和
 1.  最大子序和
-1.  [手撕快速排序](./problems/c8_quicksort.go) 切分函数的实现、主元的选取
+1.  [手撕快速排序](./problems/c8_qsort.go) 切分函数的实现、主元的选取
