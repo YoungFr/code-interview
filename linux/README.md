@@ -40,3 +40,9 @@
 
 套接字（socket）也是一种 IPC 方法，但它允许通过网络连接的不同主机上的进程进行通信。因为它与网络结构和协议相关，所以需要单独一章进行介绍，具体内容包括 UNIX Domain Socket 、 Internet Domain Socket 、服务器设计与其他高级主题。
 
+### Miscellaneous
+
+[Miscellaneous](./misc.md)
+
+其他和 Linux 相关的主题，比如各种工具链的使用、用户命令和 Shell 脚本。
+
