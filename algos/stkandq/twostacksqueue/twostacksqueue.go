@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+// LC 232 - 用栈实现队列
+// https://leetcode.cn/problems/implement-queue-using-stacks/description/
+
 // 描述
 // 用两个栈实现队列，支持队列的基本操作。
 //

@@ -12,3 +12,4 @@ package main
 
 // 本题是 25 题中 k = 2 时的特例
 // 详见 LC 25 - k 个一组翻转链表
+// https://leetcode.cn/problems/reverse-nodes-in-k-group/description/

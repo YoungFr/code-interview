@@ -7,6 +7,9 @@ package main
 //  ___) |    | |       /  /      |  |  |  | |  `--'  |     |  |         | | | |_| | | |_| |
 // |____/     |_|      /__/       |__|  |__|  \______/      |__|         |_|  \___/   \___/
 
+// LC 23 - 合并 k 个升序链表
+// https://leetcode.cn/problems/merge-k-sorted-lists/description/
+
 func MergeKLists(lists []*ListNode) *ListNode {
 	// // 朴素方法 - 两两合并后的结果再和下一个链表合并 PASS
 	// // 时间击败  5.03%
