@@ -1,4 +1,4 @@
-package main
+package llist
 
 //  ___     ___           ___    __    __    ______   .___________.    __    ___     ___
 // |__ \   / _ \         /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
@@ -11,9 +11,9 @@ package main
 // https://leetcode.cn/problems/remove-nth-node-from-end-of-list/description/
 
 func RemoveNthFromEnd(head *ListNode, n int) *ListNode {
-	// // 两趟遍历 PASS
-	// // 删除倒数第 n 个节点 <=> 删除正数第 sz-n+1 个节点
-	// // 先计算节点个数
+	// 两趟遍历 PASS
+	// 删除倒数第 n 个节点 <=> 删除正数第 sz-n+1 个节点
+	// 先计算节点个数
 	// sz := 0
 	// p := head
 	// for p != nil {

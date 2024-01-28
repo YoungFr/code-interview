@@ -1,4 +1,4 @@
-package main
+package llist
 
 //  ___    ____           ___    __    __    ______   .___________.    __    ___     ___
 // |__ \  |___ \         /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
@@ -11,8 +11,8 @@ package main
 // https://leetcode.cn/problems/reverse-linked-list/description/
 
 func ReverseList(head *ListNode) *ListNode {
-	// // 迭代 PASS
-	// // 遍历所有节点并插入到哑节点后边
+	// 迭代 PASS
+	// 遍历所有节点并插入到哑节点后边
 	// dummy := &ListNode {
 	//     Val:  0,
 	//     Next: nil,
@@ -28,8 +28,8 @@ func ReverseList(head *ListNode) *ListNode {
 	// }
 	// return dummy.Next
 
-	// // 递归一 PASS
-	// // 如果头节点为空或者没有下一个节点直接返回
+	// 递归一 PASS
+	// 如果头节点为空或者没有下一个节点直接返回
 	// if head == nil || head.Next == nil {
 	//     return head
 	// }

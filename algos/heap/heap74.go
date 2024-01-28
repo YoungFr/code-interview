@@ -29,32 +29,32 @@ func FindKthLargest(nums []int, k int) int {
 	// 空间击败 56.67%
 	//
 	// down := func(a []int, i int, size int) {
-	//     root := i
-	//     for {
-	//         child := 2*root+1
-	//         if child >= size {
-	//             break
-	//         }
-	//         if child+1 < size && a[child+1] > a[child] {
-	//             child++
-	//         }
-	//         if a[root] >= a[child] {
-	//             break
-	//         }
-	//         a[root], a[child] = a[child], a[root]
-	//         root = child
-	//     }
+	// 	root := i
+	// 	for {
+	// 		child := 2*root + 1
+	// 		if child >= size {
+	// 			break
+	// 		}
+	// 		if child+1 < size && a[child+1] > a[child] {
+	// 			child++
+	// 		}
+	// 		if a[root] >= a[child] {
+	// 			break
+	// 		}
+	// 		a[root], a[child] = a[child], a[root]
+	// 		root = child
+	// 	}
 	// }
 	// n := len(nums)
 	// // 构建大顶堆
-	// for i := n/2-1; i >= 0; i-- {
-	//     down(nums, i, n)
+	// for i := n/2 - 1; i >= 0; i-- {
+	// 	down(nums, i, n)
 	// }
 	// // 进行 k-1 次堆顶元素的删除
 	// for i := 0; i < k-1; i++ {
-	//     nums[0], nums[n-1] = nums[n-1], nums[0]
-	//     n--
-	//     down(nums, 0, n)
+	// 	nums[0], nums[n-1] = nums[n-1], nums[0]
+	// 	n--
+	// 	down(nums, 0, n)
 	// }
 	// return nums[0]
 

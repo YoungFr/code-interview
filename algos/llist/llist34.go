@@ -1,4 +1,4 @@
-package main
+package llist
 
 //  ____    _  _            ___    __    __    ______   .___________.    __    ___     ___
 // |___ \  | || |          /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
@@ -11,9 +11,9 @@ package main
 // https://leetcode.cn/problems/merge-k-sorted-lists/description/
 
 func MergeKLists(lists []*ListNode) *ListNode {
-	// // 朴素方法 - 两两合并后的结果再和下一个链表合并 PASS
-	// // 时间击败  5.03%
-	// // 空间击败 26.13%
+	// 朴素方法 - 两两合并后的结果再和下一个链表合并 PASS
+	// 时间击败  5.03%
+	// 空间击败 26.13%
 
 	// n := len(lists)
 	// // 先处理下数组长度为 0 或 1 时的特殊情况

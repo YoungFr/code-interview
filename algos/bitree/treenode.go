@@ -1,4 +1,4 @@
-package main
+package bitree
 
 type TreeNode struct {
 	Val   int
