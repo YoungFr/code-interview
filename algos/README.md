@@ -29,6 +29,20 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 34. [合并 k 个升序链表](./llist/llist34.go) 堆的插入（上浮）操作和删除（下沉）操作
 35. [LRU 缓存](./llist/llist35.go) 哈希表 + 双链表 + 每次 `Get` 和 `Put` 操作都将缓存项移到队头
 
+# 图论
+
+51. [岛屿数量](./graph/graph51.go) 网格图的深度优先搜索
+
+# 二分查找
+
+63. [搜索插入位置](./bs/bs63.go) 二分查找找到数组中一个大于等于 target 的元素的下标
+
+64. 搜索二维矩阵
+
+65. [在排序数组中查找元素的第一个和最后一个位置](./bs/bs65.go)  
+
+    利用 `bsearch(nums, target)` 和 `bsearch(nums, target+1) - 1` 寻找元素的第一个和最后一个位置
+
 # 堆
 
 74. [数组中的第 k 个最大元素](./heap/heap74.go) 堆的删除（下沉）操作 + 原地建堆 + 三向切分快速选择
