@@ -73,9 +73,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
                只有一间房可以偷
     f[i = 1] = max(nums[0], nums[1])
                有两间房时应该偷金额较大的一间
-    f[i > 1] = max(nums[i] + f[i-2],   f[i-1])
-                          ^               ^
-                  取 [偷第 i 间房] 与 [不偷第 i 间房] 的较大值
+    f[i > 1] = max(nums[i] + f[i-2],    f[i-1])
+                          ^                ^
+                          |                |
+               结果是 [偷第 i 间房] 与 [不偷第 i 间房] 的较大值
     ```
 
 85. [零钱兑换](./dp/dp85.go) 数组元素 `f[i]` 表示组成金额 `i`​ 所需的最少硬币数
