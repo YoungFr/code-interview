@@ -66,19 +66,18 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 # 动态规划
 
-85. [零钱兑换](./dp/dp85.go) 数组元素 $f[i]$ 表示组成金额 $i$ 所需的最少硬币数
+85. [零钱兑换](./dp/dp85.go) 数组元素 `f[i]` 表示组成金额 `i`​ 所需的最少硬币数
 
-    $$
-    f[i] = 
-    \begin{cases}
-    -1 \rightarrow {组成小于零的金额是不可能的} \\
-    0 \space\space\space \rightarrow {组成的金额为零则不需要硬币} \\
-    min(f[i - c_j])+1 \rightarrow \\ 
-    \quad {枚举组成金额\space i \space的最后一枚硬币的面值\space c_j \space的大小} \\
-    \quad {如果所有\space f[i-c_j] \space都等于\space -1 \space则无法组成大小为\space i \space的金额} \\
-    \quad {否则结果是所有大于等于零的\space f[i-c_j] \space中的最小值再加一}
-    \end{cases}
-    $$
+    ```
+    f[i < 0] = -1
+               组成小于零的金额是不可能的
+    f[i = 0] = 0
+               组成的金额为零则不需要硬币
+    f[i > 0] = min(f[i-c[j]]) + 1
+               枚举组成金额 i 的最后一枚硬币的面值 c[j] 的大小
+               如果所有 f[i-c[j]] 都等于 -1 则无法组成大小为 i 的金额
+               否则结果是所有大于等于零的 f[i-c[j]] 中的最小值再加一
+    ```
 
 86. 单词拆分
 
