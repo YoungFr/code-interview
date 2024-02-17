@@ -48,7 +48,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 # 二分查找
 
-63. [搜索插入位置](./bs/bs63.go) 二分查找找到数组中一个大于等于 target 的元素的下标
+63. [搜索插入位置](./bs/bs63.go) 二分查找找到数组中第一个大于等于 target 的元素的下标
 
 64. 搜索二维矩阵
 

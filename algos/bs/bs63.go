@@ -11,7 +11,7 @@ package bs
 // https://leetcode.cn/problems/search-insert-position/description/
 
 func SearchInsert(nums []int, target int) int {
-	// 找到数组中一个大于等于 target 的元素的下标
+	// 找到数组中第一个大于等于 target 的元素的下标
 	lo := 0
 	hi := len(nums)
 	for lo < hi {
