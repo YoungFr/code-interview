@@ -8,6 +8,19 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 8. [无重复字符的最长子串](./slidingwin/sw8.go) 滑动窗口
 
+# 普通数组
+
+13. [最大子数组和](./array/array13.go) 数组元素 `f[i]` 表示以 `nums[i]` 结尾的子数组的最大和
+
+    ```
+    f[i = 0] = nums[0]
+               只有一个元素的情况
+    f[i > 0] = nums[i] if f[i-1]<0 else nums[i]+f[i-1]
+               如果以 nums[i-1] 结尾的子数组的最大和已经小于零
+               就不应该把它加入以 nums[i] 结尾的子数组中
+             = max(nums[i], nums[i]+f[i-1])
+    ```
+
 # 矩阵
 
 20. [旋转图像](./matrix/mat20.go) 根据矩阵各种对称的转移式进行推导
