@@ -19,5 +19,14 @@ func MaxSubArray(nums []int) int {
 		f[i] = max(nums[i], nums[i]+f[i-1])
 		ans = max(ans, f[i])
 	}
+
+	// 状态压缩写法
+	// fi := nums[0]
+	// ans := fi
+	// for i := 1; i < len(nums); i++ {
+	//     fi = max(nums[i], nums[i] + fi)
+	//     ans = max(ans, fi)
+	// }
+
 	return ans
 }

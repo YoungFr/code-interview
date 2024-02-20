@@ -23,6 +23,8 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 # 矩阵
 
+19. [螺旋矩阵](./matrix/mat19.go) 按圈层从外向内打印矩阵
+
 20. [旋转图像](./matrix/mat20.go) 根据矩阵各种对称的转移式进行推导
 
 # 链表
@@ -106,6 +108,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
     ```
 
 86. 单词拆分
+
+# 多维动态规划
+
+93. [最长回文子串](./mddp/mddp93.go) 中心扩展法
 
 # 技巧
 
