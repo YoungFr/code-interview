@@ -8,6 +8,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 8. [无重复字符的最长子串](./slidingwin/sw8.go) 滑动窗口
 
+# 子串
+
+12. [最小覆盖子串](./substr/substr12.go) 使用 `check` 函数的滑动窗口
+
 # 普通数组
 
 13. [最大子数组和](./array/array13.go) 数组元素 `f[i]` 表示以 `nums[i]` 结尾的子数组的最大和

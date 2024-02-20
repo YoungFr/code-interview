@@ -14,7 +14,7 @@
 
 1. [三数之和](../algos/tp/tp3.go) 排序 + 双指针 + 元素去重
 
-1. [最大子数组和](../algos/array/array13.go) 动态规划 - 详见 [algos-README](../algos/README.md) 第 13 题
+1. [最大子数组和](../algos/array/array13.go) 动态规划 - 详见 [README](../algos/README.md) 第 13 题
 
 1. [手撕快速排序](./problems/c008_qsort.go) 切分函数的实现 + 主元的选取
 
@@ -108,11 +108,11 @@
 
 1. 链表中倒数第 k 个节点
 
-1. 最小覆盖子串
+1. [最小覆盖子串](../algos/substr/substr12.go) 使用 `check` 函数的滑动窗口
 
 1. 子集
 
-1. [零钱兑换](../algos/dp/dp85.go) 动态规划 - 详见 [algos-README](../algos/README.md) 第 85 题
+1. [零钱兑换](../algos/dp/dp85.go) 动态规划 - 详见 [README](../algos/README.md) 第 85 题
 
 1. 从前序与中序遍历序列构造二叉树
 
@@ -188,7 +188,7 @@
 
 1. 基本计算器 II
 
-1. [打家劫舍](../algos/dp/dp83.go) 动态规划 - 详见 [algos-README](../algos/README.md) 第 83 题
+1. [打家劫舍](../algos/dp/dp83.go) 动态规划 - 详见 [README](../algos/README.md) 第 83 题
 
 1. 最大数
 
