@@ -81,6 +81,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 35. [LRU 缓存](./llist/llist35.go) 哈希表 + 双链表 + 每次 `Get` 和 `Put` 操作都将缓存项移到队头
 
+# 二叉树
+
+40. [二叉树的直径](./bitree/bitree40.go) 遍历每个节点并计算以每个节点作为根节点时的最长路径并更新最大值
+
 # 图论
 
 51. [岛屿数量](./graph/graph51.go) 网格图的深度优先搜索
