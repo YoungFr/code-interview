@@ -22,9 +22,7 @@ func LengthOfLongestSubstring(s string) int {
 			unique[s[l]]--
 			l++
 		}
-		if r-l+1 > ans {
-			ans = r - l + 1
-		}
+		ans = max(ans, r-l+1)
 		r++
 	}
 
