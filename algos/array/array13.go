@@ -20,7 +20,7 @@ func MaxSubArray(nums []int) int {
 		ans = max(ans, f[i])
 	}
 
-	// 状态压缩写法
+	// 滚动数组写法
 	// fi := nums[0]
 	// ans := fi
 	// for i := 1; i < len(nums); i++ {

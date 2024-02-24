@@ -35,8 +35,5 @@ func SearchMatrix(matrix [][]int, target int) bool {
 		}
 	}
 
-	if lo < m*n && matrix[lo/n][lo%n] == target {
-		return true
-	}
-	return false
+	return lo < m*n && matrix[lo/n][lo%n] == target
 }
