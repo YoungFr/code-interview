@@ -83,6 +83,8 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 # 二叉树
 
+36. [二叉树的中序遍历](./bitree/bitree36.go) 不断压入当前节点的左孩子，如果为空了就打印栈顶元素然后转向右边
+
 40. [二叉树的直径](./bitree/bitree40.go) 遍历每个节点并计算以每个节点作为根节点时的最长路径并更新最大值
 
 # 图论
@@ -116,6 +118,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 75. [前 k 个高频元素](./heap/heap75.go) 建立大顶堆后进行 k 次删除获取前 k 大的值
 
 76. [数据流的中位数](./heap/heap76.go) 大顶堆保存数组前半部分最大值 + 小顶堆保存数组后半部分最小值
+
+# 贪心算法
+
+77. [买卖股票的最佳时机](./greedy/greedy77.go) 用一个变量维护前 `i-1` 天的最小价格作为买入价格，然后枚举卖出价格来获取最大利润
 
 # 动态规划
 
