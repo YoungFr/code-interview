@@ -8,7 +8,7 @@
 
 1. [LRU 缓存机制](../algos/llist/llist35.go) 哈希表 + 双链表 + 每次 `Get` 和 `Put` 操作都将缓存项移到队头
 
-1. [数组中的第 k 个最大元素](../algos/heap/heap74.go) 堆的删除（下沉）操作 or 原地建堆 or 三向切分快速选择
+1. [数组中的第 k 个最大元素](../algos/heap/heap74.go) 堆的删除（下沉）操作 + 原地建堆 or 三向切分快速选择
 
 1. [k 个一组反转链表](../algos/llist/llist31.go) 分组反转链表
 
@@ -34,7 +34,11 @@
 
 1. [环形链表](../algos/llist/llist25.go) Floyd 判圈算法
 
-1. [买卖股票的最佳时机](../algos/greedy/greedy77.go) 用一个变量维护前 `i-1` 天的最小价格作为买入价格，然后枚举卖出价格来获取最大利润
+1. [买卖股票的最佳时机](../algos/greedy/greedy77.go) 
+   
+   用一个变量维护前 `i-1` 天的最小价格作为买入价格
+   
+   然后枚举卖出价格来获取最大利润
 
 1. 二叉树的最近公共祖先
 
@@ -74,17 +78,23 @@
 
 1. 最长公共子序列
 
-1. [二分查找](../algos/bs/bs64.go) 找到第一个大于等于 `target` 的值的下标并判断是否满足 `k < len(a) && a[k] == target` 条件
+1. [二分查找](../algos/bs/bs64.go) 
+
+   找到第一个大于等于 `target` 的值的下标并判断 `k<len(a) && a[k]==target` 条件是否成立
 
 1. [二叉树的右视图](./problems/c038_bitreerightview.go) 层序遍历记录每层最右边节点的值
 
-1. [用栈实现队列](../algos/stkandq/twostacksqueue/twostacksqueue.go) 在 `popstk` 为空时要将 `pushstk` 中的元素全部 “倒入” `popstk` 中
+1. [用栈实现队列](../algos/stkandq/twostacksqueue/twostacksqueue.go) 
+
+   在 `popstk` 为空时要将 `pushstk` 中的元素全部 “倒入” `popstk` 中
 
 1. 复原 IP 地址
 
 1. [删除排序链表中的重复元素 II](./problems/c041_deldups2.go)
 
-   统计和当前节点值相等的节点的个数，如果大于 1 则将当前节点的前驱节点的 `Next` 域指向下一个与当前节点值不等的节点
+   统计和当前节点值相等的节点的个数
+   
+   如果大于 1 则将当前节点的前驱节点的 `Next` 域指向下一个与当前节点值不等的节点
 
 1. 寻找两个正序数组的中位数
 
@@ -154,7 +164,9 @@
 
 1. [在排序数组中查找元素的第一个和最后一个位置](../algos/bs/bs65.go)
 
-   利用 `bsearch(nums, target)` 和 `bsearch(nums, target+1) - 1` 寻找元素的第一个和最后一个位置
+   第一个位置 —— `bsearch(nums, target)`
+   
+   最后一个位置 —— `bsearch(nums, target+1) - 1`
 
 1. 最大正方形
 
@@ -218,7 +230,11 @@
 
 1. [LFU 缓存](./problems/c104_lfu.go) 
 
-   双哈希表：键为频率、值为该频率的索引项的双向链表 + 键为索引项中的 key 字段、值为索引项在链表中的内存地址
+   双哈希表
+   
+   `freq` —— 键为频率 + 值为使用频率等于该频率的所有索引项按使用时间先后排序的双向链表
+
+   `keys` —— 键为索引项中的 key 字段 + 值为索引项在链表中的内存地址
 
 1. 复制带随机指针的链表
 
