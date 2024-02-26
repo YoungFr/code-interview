@@ -144,11 +144,11 @@
 
 1. [二叉树的最大深度](../algos/bitree/bitree40.go) 左右子树最大深度的较大值加一
 
-1. 求根到叶子节点数字之和
+1. [求根到叶子节点数字之和](./problems/c066_sumnums.go) 遍历二叉树计算根到叶子节点表示的数字的值
 
 1. [二叉树的直径](../algos/bitree/bitree40.go) 遍历每个节点并计算以每个节点作为根节点时的最长路径并更新最大值
 
-1. 验证二叉搜索树
+1. [验证二叉搜索树](../algos/bitree/bitree43.go) 使用迭代式算法判断中序遍历结果是否为单调递增的
 
 1. [旋转图像](../algos/matrix/mat20.go) 根据矩阵各种对称的转移式进行推导
 
@@ -206,7 +206,7 @@
 
 1. 最大数
 
-1. 单词拆分
+1. [单词拆分](../algos/dp/dp86.go) 动态规划 - 详见 [README](../algos/README.md) 第 86 题
 
 1. [两两交换链表中的节点](../algos/llist/llist31.go) 第 5 题 k 个一组反转链表中 k = 2 时的情况
 
@@ -242,7 +242,9 @@
 
 1. 每日温度
 
-1. 用两个栈实现队列
+1. [用两个栈实现队列](../algos/stkandq/twostacksqueue/twostacksqueue.go)
+
+   在 `popstk` 为空时要将 `pushstk` 中的元素全部 “倒入” `popstk` 中
 
 1. 只出现一次的数字
 
