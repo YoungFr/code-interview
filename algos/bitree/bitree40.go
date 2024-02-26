@@ -66,6 +66,13 @@ func DiameterOfBinaryTree2(root *TreeNode) int {
 	return ans
 }
 
+//  ____    ______          ___    __    __    ______   .___________.    __    ___     ___
+// |___ \  |____  |        /  /   |  |  |  |  /  __  \  |           |   /_ |  / _ \   / _ \
+//   __) |     / /        /  /    |  |__|  | |  |  |  | `---|  |----`    | | | | | | | | | |
+//  |__ <     / /        /  /     |   __   | |  |  |  |     |  |         | | | | | | | | | |
+//  ___) |   / /        /  /      |  |  |  | |  `--'  |     |  |         | | | |_| | | |_| |
+// |____/   /_/        /__/       |__|  |__|  \______/      |__|         |_|  \___/   \___/
+
 // LC 104 - 二叉树的最大深度
 // https://leetcode.cn/problems/maximum-depth-of-binary-tree/description/
 func maxDepth(root *TreeNode) int {

@@ -45,6 +45,8 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
              = max(nums[i], nums[i]+f[i-1])
     ```
 
+14. [合并区间](./array/array14.go) 将区间按照左端点从小到大排序后所有可以合并的区间是连续的
+
 # 矩阵
 
 19. [螺旋矩阵](./matrix/mat19.go) 按圈层从外向内打印矩阵
@@ -85,7 +87,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 36. [二叉树的中序遍历](./bitree/bitree36.go) 不断压入当前节点的左孩子，如果为空了就打印栈顶元素然后转向右边
 
-37. 二叉树的最大深度
+37. [二叉树的最大深度](./bitree/bitree40.go) 左右子树最大深度的较大值加一
 
 38. 翻转二叉树
 
@@ -178,3 +180,5 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 97. [多数元素](./skills/skills97.go) Boyer-Moore 投票算法
 
 98. [荷兰国旗问题](./skills/skills98.go) 以 1 为主元进行三向切分
+
+99. [下一个排列](./skills/skills99.go) 将一个尽可能靠右的数和它右侧比它大的数中最小的那个交换
