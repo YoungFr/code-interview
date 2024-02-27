@@ -1,14 +1,16 @@
 - 网络模型概览
 
-  应用层工作在<font color=red>用户态</font>，传输层及以下工作在<font color=red>内核态</font>。
+  应用层工作在`用户态`，传输层及以下工作在`内核态`
 
-  传输层根据报文中的<font color=red>端口号</font>决定将报文发送给哪个应用。
+  传输层根据报文中的`端口号`决定将报文发送给哪个应用
 
-  <font color=red>网络层</font>负责将数据从一个设备传输到另一个设备；设备的地址通过 IP 地址标识；IP 协议的两个功能：<font color=red>寻址</font>和<font color=red>路由</font>。
+  `网络层`负责将数据从一个设备传输到另一个设备；设备的地址通过 IP 地址标识
 
-  IP 地址分成<font color=red>网络号</font>和<font color=red>主机号</font>两部分。
+  IP 协议的两个功能：`寻址`和`路由`
 
-  将<font color=red>子网掩码</font>与 IP 地址相与得到网络号，将子网掩码取反后再与 IP 地址相与得到主机号。
+  IP 地址分成`网络号`和`主机号`两部分
+
+  将`子网掩码`与 IP 地址相与得到网络号，将子网掩码取反后再与 IP 地址相与得到主机号
 
 - 键入网址到显示网页的过程
 
@@ -18,7 +20,7 @@
 
   3. 使用 DNS 查询域名对应的 IP 地址
 
-     涉及到的服务器：<font color=red>本地</font> DNS 服务器（DNS 解析器）、<font color=red>根</font>域名服务器、<font color=red>顶级</font>域名服务器、<font color=red>权威</font>域名服务器
+     涉及的服务器：`本地` DNS 服务器（DNS 解析器）、`根`域名服务器、`顶级`域名服务器、`权威`域名服务器
 
      DNS 缓存：浏览器缓存 => OS 缓存 => hosts 文件 => 本地 DNS 服务器
 
@@ -34,18 +36,72 @@
 
   TODO
 
-- 什么是 HTTP 协议？ —— 超文本传输协议 HTTP 是一个在计算机世界里专门在<font color=red>两点之间</font>（服务器 <--> 客户端、服务器 <-> 服务器）<font color=red>传输</font>文字、图片、音频、视频等<font color=red>超文本</font>数据的约定和规范。
+- 什么是 HTTP 协议？
+
+  超文本传输协议 HTTP 是一个在计算机世界里专门在`两点之间`（服务器 <--> 客户端、服务器 <-> 服务器）
+
+  `传输`文字、图片、音频、视频等`超文本`数据的约定和规范。
 
 - 状态码
 
-  `1XX` —— 表示中间状态的提示信息
+  1. `1XX` —— 表示中间状态的提示信息
 
-  `2XX`  —— 成功处理客户端请求
+  2. `2XX`  —— 成功处理客户端请求
 
-  `200 OK` -> 正常；`202 No Content` -> 响应头没有 body 数据；`206 Partial Content` -> 分块下载或断点续传
+     `200 OK` -> 正常
 
-  `3XX` —— 重定向
+     `202 No Content` -> 响应头没有 body 数据
 
+     `206 Partial Content` -> 分块下载或断点续传
+
+  3. `3XX` —— 重定向，请求资源变动，需要用新的 URL 获取资源
   
+     `301 Moved Permanently` -> 永久重定向
+  
+     `302 Found` -> 临时重定向
+  
+     `304 Not Modified` -> 资源未修改，可以使用未过期缓存，与重定向无关
+  
+  4. `4XX` —— 客户端错误
+  
+     `400 Bad Request` -> 笼统的请求报文错误
+  
+     `403 Forbidden` -> 资源禁止访问
+  
+     `404 Not Found` -> 资源不存在
+  
+  5. `5XX` —— 服务端错误
+  
+     `500 Internal Server Error` -> 笼统的服务器错误
+  
+     `501 Not Implemented` -> 请求功能不支持
+  
+     `502 Bad Gateway` -> 服务器作为网关或代理访问后端服务器时出错
+  
+     `503 Service Unavailable` -> 服务器忙
+  
+- 常见字段
+
+  `Host` —— 客户端发送请求时指定服务器域名
+
+  `Content-Length` —— 服务器表明本次回应的数据长度，用于解决 TCP 粘包问题
+
+  `Connection` —— 客户端使用 `Connection: Keep-Alive` 要求服务器使用长连接机制
+
+  `Accept` —— 客户端声明自己可以接受的数据格式
+
+  `Content-Type` —— 服务器表明本次回应使用的数据格式
+
+  `Content-Encoding` —— 表明服务器使用的数据压缩方式
+
+- GET 与 POST
+
+  GET 的语义：从服务器获取指定的资源
+
+  POST 的语义：根据请求负荷（报文主体）对指定的资源做出处理
+
+  `安全` —— 请求方法不会破坏服务器资源 `幂等` —— 多次执行相同操作的结果都是相同的
+
+  GET 是安全、幂等、可缓存的；POST 是不安全、不幂等、不可缓存的
 
   
