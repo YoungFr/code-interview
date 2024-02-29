@@ -95,7 +95,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 40. [二叉树的直径](./bitree/bitree40.go) 遍历每个节点并计算以每个节点作为根节点时的最长路径并更新最大值
 
-41. 二叉树的层序遍历
+41. [二叉树的层序遍历](../codetop/problems/c038_bitreerightview.go) 队列的经典应用
 
 42. 将有序数组转化为二叉树
 
@@ -108,6 +108,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 # 图论
 
 51. [岛屿数量](./graph/graph51.go) 网格图的深度优先搜索
+
+52. 腐烂的橘子
+
+53. [课程表](./graph/graph53.go) 对 DAG 进行拓扑排序的 Kahn 算法
 
 # 二分查找
 
@@ -142,6 +146,8 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 77. [买卖股票的最佳时机](./greedy/greedy77.go) 用一个变量维护前 `i-1` 天的最小价格作为买入价格，然后枚举卖出价格来获取最大利润
 
 # 动态规划
+
+81. [爬楼梯](./dp/dp81.go) 斐波那契数列
 
 83. [打家劫舍](./dp/dp83.go) 数组元素 `f[i]` 表示偷窃第 `0` 间到第 `i` 间房屋能得到的最高金额
 

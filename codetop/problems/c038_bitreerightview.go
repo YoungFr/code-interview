@@ -19,9 +19,13 @@ func RightSideView(root *TreeNode) []int {
 	for len(q) > 0 {
 		// 在把下一层节点添加到队列中时先将当前层最右边的节点添加到 ans 中
 		ans = append(ans, q[len(q)-1].Val)
+
+		// 二叉树的层序遍历
 		for sz := len(q); sz > 0; sz-- {
+			// 弹出队头元素
 			h := q[0]
 			q = q[1:]
+			// 头节点不为空的左右孩子入队
 			if h.Left != nil {
 				q = append(q, h.Left)
 			}
