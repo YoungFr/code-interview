@@ -2,7 +2,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 # 哈希
 
-1. 两数之和
+1. [两数之和](./hash/hash1.go) 构建键为元素、值为下标的哈希表
 
 2. 字母异位词分组
 
@@ -132,6 +132,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
     答案是第一个满足小于等于 `nums[-1]` 的元素
 
 68. 寻找两个正序数组的中位数
+
+# 栈
+
+61. [有效的括号](./stkandq/stk61.go) 利用栈进行括号匹配
 
 # 堆
 

@@ -20,7 +20,7 @@
 
 1. [合并 2 个有序链表](../algos/llist/llist27.go) 迭代合并 or 递归合并
 
-1. 两数之和
+1. [两数之和](../algos/hash/hash1.go) 构建键为元素、值为下标的哈希表
 
 1. [最长回文子串](../algos/mddp/mddp93.go) 中心扩展法
 
@@ -30,7 +30,7 @@
 
 1. [岛屿数量](../algos/graph/graph51.go) 网格图的深度优先搜索
 
-1. 有效的括号
+1. [有效的括号](../algos/stkandq/stk61.go) 利用栈进行括号匹配
 
 1. [环形链表](../algos/llist/llist25.go) Floyd 判圈算法
 
