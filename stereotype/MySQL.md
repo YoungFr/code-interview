@@ -79,17 +79,13 @@
 
 - 事务具有<font color=red>**ACID**</font>属性
 
-  
-
   ```
-                      手段                   =>                目的
+                       手段                    =>                目的
   
   A(最小执行单位) + I(并发事务之间独立) + D(提交后是持久改变) => C(执行前后数据一致)
   
     undolog  /  锁（悲观）+ MVCC（乐观）  /  redolog     <= 对应的 MySQL 实现方法
   ```
-
-  
 
   DDIA：前三者是**数据库**的属性而一致性是**应用程序**的属性
 
@@ -103,13 +99,19 @@
 
 - SQL 标准定义的四个事务隔离级别
 
-  **读未提交**（READ-UNCOMMITED）:sob:  :sob:  :sob:
+  **读未提交**（READ-UNCOMMITED） :sob:  :sob:  :sob:
 
-  **读已提交**（READ-COMMITED）:smile:  :sob:  :sob: <font color=red>MVCC</font>
+  **读已提交**（READ-COMMITED） :smile:  :sob:  :sob: <font color=red>MVCC</font>
 
-  **可重复读**（REPEATABLE-READ） —— InnoDB 引擎默认支持的隔离级别 :smile:  :smile:  :sob: <font color=red>MVCC</font>
+  **可重复读**（REPEATABLE-READ） —— InnoDB 引擎默认支持的隔离级别​ :smile:  :smile:  :sob: <font color=red>MVCC</font>
 
-  **可串行化**（SERIALIZABLE）:smile:  :smile:  :smile: <font color=red>锁</font>
+  **可串行化**（SERIALIZABLE） :smile:  :smile:  :smile: <font color=red>锁</font>
+
+- 实现方法
+
+  锁：通过锁来显示控制共享资源
+
+  MVCC：对一份数据会存储多个版本，通过事务的可见性来保证事务能看到自己应该看到的版本
 
 # 锁
 
