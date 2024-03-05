@@ -34,7 +34,7 @@
 
 1. [环形链表](../algos/llist/llist25.go) Floyd 判圈算法
 
-1. [买卖股票的最佳时机](../algos/greedy/greedy77.go) 
+1. [买卖股票的最佳时机](../algos/greedy/greedy77.go)
   
    用一个变量维护前 `i-1` 天的最小价格作为买入价格
    
@@ -44,7 +44,9 @@
 
 1. [合并两个有序数组](./problems/c019_merge.go) 从后往前遍历确定应该使用哪个数组中的数字
 
-1. 全排列
+1. [全排列](../algos/backtrack/bt55.go)
+
+   排列型回溯
 
 1. [二叉树的锯齿形层次遍历](./problems/c021_zigzaglevel.go) 层次遍历中添加下一层节点时使用栈来实现锯齿形遍历
 
@@ -84,7 +86,13 @@
 
 1. [用栈实现队列](../algos/stkandq/twostacksqueue/twostacksqueue.go) 在 `popstk` 为空时要将 `pushstk` 中的元素全部 “倒入” `popstk` 中
 
-1. 复原 IP 地址
+1. [复原 IP 地址](./problems/c040_restoreip.go)
+   
+   子集型回溯 => 每两个数字之间的 '.' 都有选或不选两种可能 => 选取所有元素都在 `[0,255]` 且长度为 4 的结果
+
+   如果去掉筛选长度为 4 的结果这一步就是 [分割回文串](https://leetcode.cn/problems/palindrome-partitioning/description/) 一题
+   
+   子集型回溯的例题：[子集](../algos/backtrack/bt56.go)
 
 1. [删除排序链表中的重复元素 II](./problems/c041_deldups2.go)
 
@@ -118,7 +126,9 @@
 
 1. [最小覆盖子串](../algos/substr/substr12.go) 使用 `check` 函数的滑动窗口
 
-1. 子集
+1. [子集](../algos/backtrack/bt56.go) 
+
+   子集型回溯的例题 => 每个元素都有选或不选两种可能
 
 1. [零钱兑换](../algos/dp/dp85.go) 动态规划 - 详见 [README](../algos/README.md) 第 85 题
 
