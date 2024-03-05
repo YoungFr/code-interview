@@ -34,9 +34,9 @@
 
 - 命令 `SHOW ENGINES` 查看所有存储引擎，<font color=red>只有 InnoDB 支持事务</font>
 
--  MySQL 的存储引擎使用<font color=red>插件式架构</font>
+- MySQL 的存储引擎使用<font color=red>插件式架构</font>
 
-- 可以为不同的表设置不同的存储引擎 => <font color=red>存储引擎是基于表的而不是基于数据库的</font>
+  可以为不同的表设置不同的存储引擎 => <font color=red>存储引擎是基于表的而不是基于数据库的</font>
 
 - MySQL 默认的存储引擎：MyISAM <- 5.5 -> InnoDB
 
@@ -77,15 +77,17 @@
   COMMIT;
   ```
 
-- 事务具有**<font color=red>ACID</font>**属性
+- 事务具有<font color=red>**ACID**</font>属性
 
   
 
-  ​                                                     手段                                    =>                                     目的
-
-  **A**(最小执行单位) + **I**(并发事务之间独立) + **D**(提交后是持久改变) => **C**(执行前后数据一致) 
-
-  ​      **undolog    /   锁（悲观） + MVCC（乐观）   /      redolog**       <= 对应的 MySQL 实现方法
+  ```
+                      手段                   =>                目的
+  
+  A(最小执行单位) + I(并发事务之间独立) + D(提交后是持久改变) => C(执行前后数据一致)
+  
+    undolog  /  锁（悲观）+ MVCC（乐观）  /  redolog     <= 对应的 MySQL 实现方法
+  ```
 
   
 
@@ -101,15 +103,13 @@
 
 - SQL 标准定义的四个事务隔离级别
 
-  **读未提交**（READ-UNCOMMITED）:sob: :sob: :sob:
+  **读未提交**（READ-UNCOMMITED）:sob:  :sob:  :sob:
 
-  **读已提交**（READ-COMMITED）:smile: :sob: :sob: <font color=red>MVCC</font>
+  **读已提交**（READ-COMMITED）:smile:  :sob:  :sob: <font color=red>MVCC</font>
 
-  **可重复读**（REPEATABLE-READ） —— InnoDB 引擎默认支持的隔离级别 :smile: :smile: :sob: <font color=red>MVCC</font>
+  **可重复读**（REPEATABLE-READ） —— InnoDB 引擎默认支持的隔离级别 :smile:  :smile:  :sob: <font color=red>MVCC</font>
 
-  **可串行化**（SERIALIZABLE）:smile: :smile: :smile: <font color=red>锁</font>
-
-- 
+  **可串行化**（SERIALIZABLE）:smile:  :smile:  :smile: <font color=red>锁</font>
 
 # 锁
 
