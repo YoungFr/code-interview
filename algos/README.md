@@ -157,6 +157,10 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 61. [有效的括号](./stkandq/stk61.go) 利用栈进行括号匹配
 
+62. 最小栈
+
+63. [字符串解码](./stkandq/stk63.go) 数字栈 + 字符串栈
+
 # 堆
 
 74. [数组中的第 k 个最大元素](./heap/heap74.go) 堆的删除（下沉）操作 + 原地建堆 + 三向切分快速选择
