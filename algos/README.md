@@ -123,7 +123,6 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
     ```
     回溯三问：当前操作？ -> 子问题？ -> 下一个子问题？
-
     ```
 
 58. 组合总和
@@ -142,9 +141,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 64. [搜索二维矩阵](./bs/bs64.go) 将二维矩阵的行列下标对应到一维数组的下标后进行二分查找
 
-65. [在排序数组中查找元素的第一个和最后一个位置](./bs/bs65.go)
-
-    利用 `bsearch(nums, target)` 和 `bsearch(nums, target+1) - 1` 寻找元素的第一个和最后一个位置
+65. [在排序数组中查找元素的第一个和最后一个位置](./bs/bs65.go) `bsearch(nums, target) & bsearch(nums, target+1) - 1`
 
 66. [搜索旋转排序数组](./bs/bs66.go) 先用二分查找找到最小值再确定在哪个区间上查找目标值
 
