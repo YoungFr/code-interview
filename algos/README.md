@@ -125,7 +125,7 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
     回溯三问：当前操作？ -> 子问题？ -> 下一个子问题？
     ```
 
-58. 组合总和
+58. [组合总和](./backtrack/bt58.go)
 
 59. 括号生成
 

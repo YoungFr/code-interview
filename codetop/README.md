@@ -154,7 +154,7 @@
 
 1. [旋转图像](../algos/matrix/mat20.go) 根据矩阵各种对称的转移式进行推导
 
-1. 组合总和
+1. [组合总和](../algos/backtrack/bt58.go)
 
 1. [路径总和 II](./problems/c071_pathsum2.go) 
    
