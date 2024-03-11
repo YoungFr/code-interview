@@ -31,7 +31,7 @@ func main() {
 	}()
 	go func() {
 		for c := 'A'; c <= 'Z'; c++ {
-			fmt.Print(<-number, string(c))
+			fmt.Print(<-number, " ", string(c), " ")
 			if c == 'Z' {
 				done <- 1
 			}
@@ -59,7 +59,7 @@ func main() {
 				// 如果争抢到锁并且当前 count 的值与自己要打印的相同则打印
 				// 打印完成后将 count 加一再释放锁后退出
 				if now == i {
-					fmt.Print(now)
+					fmt.Print(now, " ")
 					count++
 					mu.Unlock()
 					wg.Done()
@@ -82,7 +82,7 @@ func main() {
 	}
 	for i := 0; i < N; i++ {
 		go func(i int) {
-			fmt.Print(<-chs[i])
+			fmt.Print(<-chs[i], " ")
 			// 打印完最后一个数字后通知主线程
 			if i == N-1 {
 				quit <- 1
@@ -96,4 +96,64 @@ func main() {
 	}()
 	<-quit // 主线程等待
 	fmt.Println()
+
+	// 4. 按照 零 -> 奇数 -> 偶数 -> 零 -> 奇数 -> 偶数 的顺序打印数字
+
+	var (
+		zero     = make(chan struct{})
+		odd      = make(chan struct{})
+		even     = make(chan struct{})
+		taskdone = make(chan struct{})
+	)
+	go printZero(10, zero, odd)
+	go printOdd(10, odd, even)
+	go printEven(10, even, zero, taskdone)
+	zero <- struct{}{}
+	<-taskdone
+	fmt.Println()
+
+	// // 协程池的使用
+	// start := time.Now().UnixMicro()
+
+	// njobs := 10000
+	// go Allocate(njobs)
+
+	// d := make(chan bool)
+	// go GetResult(d)
+
+	// nworkers := 4
+	// CreatePool(nworkers)
+
+	// <-d
+
+	// end := time.Now().UnixMicro()
+	// fmt.Println(end - start)
+}
+
+func printZero(n int, zero <-chan struct{}, odd chan<- struct{}) {
+	for i := 0; i < n; i++ {
+		<-zero
+		fmt.Print(0, " ")
+		odd <- struct{}{}
+	}
+}
+
+func printOdd(n int, odd <-chan struct{}, even chan<- struct{}) {
+	for i := 1; i <= 2*n-1; i += 2 {
+		<-odd
+		fmt.Print(i, " ")
+		even <- struct{}{}
+	}
+}
+
+func printEven(n int, even <-chan struct{}, zero chan<- struct{}, done chan<- struct{}) {
+	for i := 2; i <= 2*n; i += 2 {
+		<-even
+		fmt.Print(i, " ")
+		if i == 2*n {
+			done <- struct{}{}
+			return
+		}
+		zero <- struct{}{}
+	}
 }

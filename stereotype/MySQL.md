@@ -106,7 +106,7 @@
   - 索引列运算和函数
   - 类似于 `like '%XXX'` 的头部模糊匹配
   - 使用 `or` 连接 -> 只有当 `or` 连接的条件左右两侧字段都有索引时索引才会生效
-  - 字符串不加单引号、隐式类型转换
+  - 字符串不加单引号和隐式类型转换
   - 数据分布 -> 如果 MySQL 评估使用索引比全表更慢则不使用索引
 
 ### 建议
@@ -147,7 +147,11 @@
 
   DDIA：前三者是**数据库**的属性而一致性是**应用程序**的属性
 
+### 隔离性
+
 - 并发事务带来的问题
+
+  <font color=red>**这些问题的共同点是它们都是由 “一个事务读 + 一个事务写” 导致的**</font>
 
   **脏读**（Dirty Read） -> 一个事务读取了另一个事务**未提交**的数据
 
@@ -159,21 +163,44 @@
 
   **读未提交**（READ-UNCOMMITED） :sob:  :sob:  :sob:
 
-  **读已提交**（READ-COMMITED） :smile:  :sob:  :sob: <font color=red>MVCC</font>
+  **读已提交**（READ-COMMITED） :smile:  :sob:  :sob: <font color=red>锁 or MVCC</font>
 
-  **可重复读**（REPEATABLE-READ） —— InnoDB 引擎默认支持的隔离级别​ :smile:  :smile:  :sob: <font color=red>MVCC</font>
+  **可重复读**（REPEATABLE-READ） —— InnoDB 引擎默认支持的隔离级别​ :smile:  :smile:  :sob: <font color=red>锁 or MVCC</font>
 
   **可串行化**（SERIALIZABLE） :smile:  :smile:  :smile: <font color=red>锁</font>
 
-- 实现方法
-
-  锁：通过锁来显示控制共享资源
-
-  MVCC：对一份数据会存储多个版本，通过事务的可见性来保证事务能看到自己应该看到的版本
-
 # 锁
 
+MySQL 的锁按加锁范围分为<font color=red>全局锁</font>（使整个数据库只读）、<font color=red>表锁</font>和<font color=red>行锁</font>。
 
+### 写锁/读锁/范围锁/意向锁
+
+- 写锁/排他锁：只有持有写锁的事务才能写入，其他事务不能再施加写锁和读锁。<font color=red>行级：X-Record Lock</font>
+- 读锁/共享锁：多个事务可以对同一个数据添加读锁，施加读锁后就不能再施加写锁。<font color=red>行级：S-Record Lock</font>
+- 范围锁：对某个范围的数据直接加写锁，这个数据范围内的数据不能写入。<font color=red>行级：Gap Lock</font>
+- <font color=red>X/S-意向锁</font>（表）：
+- <font color=red>插入意向锁</font>（行）：
+- <font color=red>Next-Key Lock</font>：记录锁 + 间隙锁
+
+### 如何通过锁的不同组合来实现不同的隔离级别？
+
+- 可串行化：**写锁 + 读锁 + 范围锁**
+
+- 可重复读：**写锁 + 贯穿整个事务的读锁**
+
+  幻读：T1 进行范围查询 -> T2 在范围中插入 -> T1 再次进行范围查询 -> 结果不一致
+
+- 读已提交：**写锁 + 读操作完成后立马释放的读锁**
+
+  不可重复读：T1 加读锁查询 -> T1 释放读锁 -> T2 加写锁修改 -> T2 提交 -> T1 再次加读锁查询 -> 结果不一致
+
+- 读未提交：**写锁**
+
+  脏读：T1 加写锁修改-> T2 查询 -> T1 回滚 -> T2 读到了 T1 未提交的过期数据
+
+### MVCC
+
+针对可重复读和读已提交的不加读锁的解决方案称为多版本并发控制。
 
 # 日志
 
