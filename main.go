@@ -128,6 +128,112 @@ func main() {
 
 	// end := time.Now().UnixMicro()
 	// fmt.Println(end - start)
+
+	// 1. 脏写
+	// a := 0
+	// var wg sync.WaitGroup
+	// for i := 0; i < 1000; i++ {
+	// 	wg.Add(1)
+	// 	go func() {
+	// 		defer wg.Done()
+	// 		a += 10
+	// 	}()
+	// }
+	// wg.Wait()
+	// fmt.Println(a)
+
+	// 2. 读未提交：写之前加写锁 -> 脏读
+	// a := 300
+	// b := 700
+	// var mu sync.RWMutex
+	// var wg sync.WaitGroup
+	// wg.Add(2)
+
+	// // 写事务
+	// go func() {
+	// 	mu.Lock()
+	// 	// 修改
+	// 	a += 200
+	// 	b -= 200
+	// 	// 回滚
+	// 	b += 200
+	// 	a -= 200
+	// 	mu.Unlock()
+	// 	// 提交
+	// 	wg.Done()
+	// }()
+
+	// // 读事务
+	// go func() {
+	// 	fmt.Printf("read T: a = %d, b = %d\n", a, b)
+	// 	// 提交
+	// 	wg.Done()
+	// }()
+
+	// wg.Wait()
+	// fmt.Printf("after Ts: a = %d, b = %d\n", a, b)
+
+	// 3. 读已提交：写之前加写锁、读之前加读锁、读后释放读锁 -> 不可重复读
+	// a := 300
+	// b := 700
+	// var mu sync.RWMutex
+	// var wg sync.WaitGroup
+	// wg.Add(2)
+
+	// // 写事务
+	// go func() {
+	// 	mu.Lock()
+	// 	a += 200
+	// 	b -= 200
+	// 	mu.Unlock()
+	// 	// 提交
+	// 	wg.Done()
+	// }()
+
+	// // 读事务
+	// go func() {
+	// 	mu.RLock()
+	// 	fmt.Printf("1st read: a = %d, b = %d\n", a, b)
+	// 	mu.RUnlock()
+	// 	mu.RLock()
+	// 	fmt.Printf("2nd read: a = %d, b = %d\n", a, b)
+	// 	mu.RUnlock()
+	// 	// 提交
+	// 	wg.Done()
+	// }()
+
+	// wg.Wait()
+	// fmt.Printf("after Ts: a = %d, b = %d\n", a, b)
+
+	// 4. 可重复读：写之前加写锁、读之前加读锁 -> 幻读
+	// a := 300
+	// b := 700
+	// var mu sync.RWMutex
+	// var wg sync.WaitGroup
+	// wg.Add(2)
+
+	// // 写事务
+	// go func() {
+	// 	mu.Lock()
+	// 	a += 200
+	// 	b -= 200
+	// 	mu.Unlock()
+	// 	// 提交
+	// 	wg.Done()
+	// }()
+
+	// // 读事务
+	// go func() {
+	// 	mu.RLock()
+	// 	fmt.Printf("1st read: a = %d, b = %d\n", a, b)
+	// 	fmt.Printf("2nd read: a = %d, b = %d\n", a, b)
+	// 	mu.RUnlock()
+	// 	// 提交
+	// 	wg.Done()
+	// }()
+
+	// wg.Wait()
+	// fmt.Printf("after Ts: a = %d, b = %d\n", a, b)
 }
 
 func printZero(n int, zero <-chan struct{}, odd chan<- struct{}) {
