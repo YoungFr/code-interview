@@ -37,12 +37,13 @@ func Partition(s string) (ans [][]string) {
 
 	var dfs func(start int, i int, a []string)
 	dfs = func(start, i int, a []string) {
+		// 选择完了 n 个逗号
 		if i == n {
 			ans = append(ans, append([]string(nil), a...))
 			return
 		}
 
-		// 是否选择 s[i] 和 s[i+1] 之间的逗号
+		// 是否选择 s[i] 和 s[i+1] 之间的第 i 个逗号
 
 		// 选择
 		if t := s[start : i+1]; check(t) {

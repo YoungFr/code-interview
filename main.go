@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -112,22 +113,22 @@ func main() {
 	<-taskdone
 	fmt.Println()
 
-	// // 协程池的使用
-	// start := time.Now().UnixMicro()
+	// 协程池的使用
+	start := time.Now().UnixMicro()
 
-	// njobs := 10000
-	// go Allocate(njobs)
+	njobs := 10000
+	go Allocate(njobs)
 
-	// d := make(chan bool)
-	// go GetResult(d)
+	d := make(chan bool)
+	go GetResult(d)
 
-	// nworkers := 4
-	// CreatePool(nworkers)
+	nworkers := 4
+	CreatePool(nworkers)
 
-	// <-d
+	<-d
 
-	// end := time.Now().UnixMicro()
-	// fmt.Println(end - start)
+	end := time.Now().UnixMicro()
+	fmt.Printf("%dus\n", end-start)
 
 	// 1. 脏写
 	// a := 0
