@@ -43,7 +43,7 @@ func main() {
 
 	// 3. 启动 N 个线程按顺序打印 0 ~ N-1 数字
 
-	N := 50
+	N := 30
 
 	// 3.1 锁
 	var count int     // 多个线程争抢 count 变量和锁
@@ -235,6 +235,33 @@ func main() {
 
 	// wg.Wait()
 	// fmt.Printf("after Ts: a = %d, b = %d\n", a, b)
+
+	// 单生产者多消费者
+	tasks := make(chan int, 2)
+	var pcwg sync.WaitGroup
+	go produce(tasks, 5)
+	// 启动 5 个消费者
+	for i := 0; i < 5; i++ {
+		pcwg.Add(1)
+		go consume(i, tasks, &pcwg)
+	}
+	pcwg.Wait()
+}
+
+// 向队列 tasks 中生产 n 个任务
+func produce(tasks chan<- int, n int) {
+	for i := 0; i < n; i++ {
+		tasks <- i
+	}
+	close(tasks)
+}
+
+// 编号为 id 的消费者从队列 tasks 中消费任务
+func consume(id int, tasks <-chan int, wg *sync.WaitGroup) {
+	for task := range tasks {
+		fmt.Printf("consumer %d consumes task %d\n", id, task)
+	}
+	wg.Done()
 }
 
 func printZero(n int, zero <-chan struct{}, odd chan<- struct{}) {
