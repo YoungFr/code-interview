@@ -55,8 +55,6 @@ Q: 什么是 <font color=red>WebSocket</font> 协议？
 
 Q: 常见的<font color=red>限流模式</font>？
 
-A:
-
 **单机限流**
 
 流量计数器/固定窗口计数器：控制每个固定时间窗口内的请求次数；存在**窗口边缘流量猛增**问题。
@@ -79,9 +77,9 @@ A:
 
 
 
-Q: 如何使用 Redis 实现<font color=red>分布式锁</font>？
+# Redis
 
-A:
+Q: 如何使用 Redis 实现<font color=red>分布式锁</font>？
 
 分布式锁用于控制在分布式环境下某个资源在同一时刻只能被一个服务使用。
 
@@ -106,7 +104,7 @@ SET lock_key unique_value NX PX 10000
   所有 Lua 脚本共用一个 Lua 环境 -> 一个 Lua 脚本执行时其他 Lua 脚本无法执行
   ```
 
-基于 Redis 实现的分布式锁的缺点在于**超时时间不好设**置和**主从异步复制导致的不可靠性**。
+基于 Redis 实现的分布式锁的缺点在于**超时时间不好设置**和**主从异步复制导致的不可靠性**。
 
 Redis 官方针对集群环境下的分布式锁设计了 RedLock 方案：
 
@@ -122,6 +120,8 @@ Q: <font color=red>分布式唯一 ID</font> 生成算法？
 └─┴───────────┴───────────────┴────────────┴─────────────────┘
  1     41             5              5             12
 ```
+
+Q: <font color=red>跳表</font>介绍及读写流程？
 
 
 
@@ -142,43 +142,57 @@ Q: 简述<font color=red>三次握手</font>和<font color=red>四次挥手</fon
 三次握手
 
 ```
-      TCP A                                                 TCP B
+    TCP A                                                 TCP B
 
-  1.  CLOSED                                                LISTEN
+1.  CLOSED                                                LISTEN
 
-  2.  SYN-SENT    --> <SEQ=100><CTL=SYN>                --> SYN-RECEIVED
+2.  SYN-SENT    --> <SEQ=100><CTL=SYN>                --> SYN-RECEIVED 丢失->重传相同的 SYN 报文
 
-  3.  ESTABLISHED <-- <SEQ=300><ACK=101><CTL=SYN,ACK>   <-- SYN-RECEIVED
+3.  ESTABLISHED <-- <SEQ=300><ACK=101><CTL=SYN,ACK>   <-- SYN-RECEIVED 丢失->客户端服务端都重传
 
-  4.  ESTABLISHED --> <SEQ=101><ACK=301><CTL=ACK>       --> ESTABLISHED
+4.  ESTABLISHED --> <SEQ=101><ACK=301><CTL=ACK>       --> ESTABLISHED  丢失->重传相同的 SYN+ACK 报文
 
-  5.  ESTABLISHED --> <SEQ=101><ACK=301><CTL=ACK><DATA> --> ESTABLISHED
+5.  ESTABLISHED --> <SEQ=101><ACK=301><CTL=ACK><DATA> --> ESTABLISHED
 ```
 
 四次挥手
 
 ```
-      TCP A                                                TCP B
+    TCP A                                                TCP B
 
-  1.  ESTABLISHED                                          ESTABLISHED
+1.  ESTABLISHED                                          ESTABLISHED
 
-      (Close)
-  2.  FIN-WAIT-1  --> <SEQ=100><ACK=300><CTL=FIN,ACK>  --> CLOSE-WAIT
+    (Close)
+2.  FIN-WAIT-1  --> <SEQ=100><ACK=300><CTL=FIN,ACK>  --> CLOSE-WAIT 丢失->重传相同的 FIN 报文
 
-  3.  FIN-WAIT-2  <-- <SEQ=300><ACK=101><CTL=ACK>      <-- CLOSE-WAIT
+3.  FIN-WAIT-2  <-- <SEQ=300><ACK=101><CTL=ACK>      <-- CLOSE-WAIT 丢失->重传相同的 FIN 报文
 
-                                                           (Close)
-  4.  TIME-WAIT   <-- <SEQ=300><ACK=101><CTL=FIN,ACK>  <-- LAST-ACK
+                                                         (Close)
+4.  TIME-WAIT   <-- <SEQ=300><ACK=101><CTL=FIN,ACK>  <-- LAST-ACK   丢失->重传相同的 FIN+ACK 报文
 
-  5.  TIME-WAIT   --> <SEQ=101><ACK=301><CTL=ACK>      --> CLOSED
+5.  TIME-WAIT   --> <SEQ=101><ACK=301><CTL=ACK>      --> CLOSED     丢失->重传相同的 FIN+ACK 报文
 
-  6.  (2 MSL)
-      CLOSED
+6.  (2 MSL)
+    CLOSED
 ```
 
 Q: 不能<font color=red>两次</font>和<font color=red>四次</font>握手的原因？
 
 <details><summary>A</summary>两次：不能防止历史连接的建立和有效地同步序列号；四次：避免浪费</details>
+
+
+
+Q: 客户端的 <font color=red>TIME_WAIT</font> 状态以及 <font color=red>2MSL</font> 的原因？
+
+主动关闭连接的一方才有 TIME_WAIT 状态。
+
+MSL 指报文最大生存时间，2MSL 的时间可以允许报文丢失一次。如果**在 2MSL 内收到了重传报文会重置定时器**。
+
+**可以保证被动关闭连接的一方能被正确关闭**：2MSL 的时间可以保证最后一次的 ACK 报文被收到，如果最后一次的 ACK 报文丢失，经过 MSL 后会重传 FIN+ACK 报文，主动关闭方可以在第 2 个 MSL 内收到重传报文从而再次发送 ACK 报文。
+
+<font color=red>TIME_WAIT 过多会占用系统资源及端口资源：客户端 -> 无法再对相同 IP+Port 的服务端发起连接；服务端：占用资源</font>。
+
+
 
 Q: TCP 怎么处理<font color=red>丢包</font>？
 
@@ -190,9 +204,17 @@ Q: 简述 TCP <font color=red>拥塞控制</font>？
 
 <details><summary>A</summary>TODO</details>
 
-Q: 传输层<font color=red>TCP和UDP的包大小</font>限制？
 
-<details><summary>A</summary>TODO</details>
+
+Q: 介绍下<font color=red>MTU</font>和<font color=red>MSS</font>的含义
+
+MTU：一个网络包的最大长度。超过 MTU 的包要分片，**当一个 IP 分片丢失后，整个网络包的所有分片都要重传**。
+
+MSS：**除去 IP 和 TCP 头部**后一个网络包能容纳的 **TCP 数据**的最大长度。
+
+<font color=red>为了防止在一个分片丢失时重传整个包，当 TCP 发现数据超过 MSS 时会先分片而避免在 IP 层分片</font>。
+
+
 
 Q: 在 Linux 上查看并处理 <font color=red>CPU 占用多的进程</font>？
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -35,6 +36,7 @@ func main() {
 			fmt.Print(<-number, " ", string(c), " ")
 			if c == 'Z' {
 				done <- 1
+				return
 			}
 		}
 	}()
@@ -92,9 +94,7 @@ func main() {
 			chs[i+1] <- i + 1
 		}(i)
 	}
-	go func() {
-		chs[0] <- 0
-	}()
+	chs[0] <- 0
 	<-quit // 主线程等待
 	fmt.Println()
 
@@ -122,7 +122,7 @@ func main() {
 	d := make(chan bool)
 	go GetResult(d)
 
-	nworkers := 4
+	nworkers := runtime.NumCPU()
 	CreatePool(nworkers)
 
 	<-d
