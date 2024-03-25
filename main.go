@@ -34,11 +34,8 @@ func main() {
 	go func() {
 		for c := 'A'; c <= 'Z'; c++ {
 			fmt.Print(<-number, " ", string(c), " ")
-			if c == 'Z' {
-				done <- 1
-				return
-			}
 		}
+		done <- 1
 	}()
 	<-done
 	fmt.Println()
@@ -259,7 +256,7 @@ func produce(tasks chan<- int, n int) {
 // 编号为 id 的消费者从队列 tasks 中消费任务
 func consume(id int, tasks <-chan int, wg *sync.WaitGroup) {
 	for task := range tasks {
-		fmt.Printf("consumer %d consumes task %d\n", id, task)
+		fmt.Printf("consumer %d consumes task %d at %d\n", id, task, time.Now().Nanosecond())
 	}
 	wg.Done()
 }

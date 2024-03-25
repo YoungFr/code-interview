@@ -62,7 +62,7 @@
 
 1. [重排链表](./problems/c028_reorderllist.go) 交替合并两个链表
 
-1. 接雨水
+1. [接雨水](../algos/tp/tp7.go) 前后缀分解 or 双指针
 
 1. [环形链表 II](../algos/llist/llist26.go) 哈希表 + 快慢指针
 

@@ -14,9 +14,9 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 5. 盛最多水的容器
 
-6. [三数之和](./tp/tp3.go) 排序 + 双指针 + 元素去重
+6. [三数之和](./tp/tp6.go) 排序 + 双指针 + 元素去重
 
-7. 接雨水
+7. [接雨水](./tp/tp7.go) 前后缀分解 or 双指针
 
 # 滑动窗口
 
@@ -47,11 +47,21 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 14. [合并区间](./array/array14.go) 将区间按照左端点从小到大排序后所有可以合并的区间是连续的
 
+15. 轮转数组
+
+16. 除自身以外数组的乘积
+
+17. 缺失的第一个正数
+
 # 矩阵
+
+18. 矩阵置零
 
 19. [螺旋矩阵](./matrix/mat19.go) 按圈层从外向内打印矩阵
 
 20. [旋转图像](./matrix/mat20.go) 根据矩阵各种对称的转移式进行推导
+
+21. 搜索二维矩阵 II
 
 # 链表
 
@@ -105,6 +115,16 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 45. [二叉树的右视图](./problems/c038_bitreerightview.go) 层序遍历记录每层最右边节点的值
 
+46. 二叉树展开为链表
+
+47. 从前序与中序遍历序列构造二叉树
+
+48. 路径总和 III
+
+49. 二叉树的最近公共祖先
+
+50. 二叉树中的最大路径和
+
 # 图论
 
 51. [岛屿数量](./graph/graph51.go) 网格图的深度优先搜索
@@ -112,6 +132,8 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 52. 腐烂的橘子
 
 53. [课程表](./graph/graph53.go) 对 DAG 进行拓扑排序的 Kahn 算法
+
+54. 实现前缀树
 
 # 回溯
 
@@ -155,11 +177,15 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 # 栈
 
-61. [有效的括号](./stkandq/stk61.go) 利用栈进行括号匹配
+69. [有效的括号](./stkandq/stk61.go) 利用栈进行括号匹配
 
-62. 最小栈
+70. 最小栈
 
-63. [字符串解码](./stkandq/stk63.go) 数字栈 + 字符串栈
+71. [字符串解码](./stkandq/stk63.go) 数字栈 + 字符串栈
+
+72. 每日温度
+
+73. 柱状图中最大的矩形
 
 # 堆
 
@@ -173,9 +199,17 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
 
 77. [买卖股票的最佳时机](./greedy/greedy77.go) 用一个变量维护前 `i-1` 天的最小价格作为买入价格，然后枚举卖出价格来获取最大利润
 
+78. 跳跃游戏
+
+79. 跳跃游戏 II
+
+80. 划分字母区间
+
 # 动态规划
 
 81. [爬楼梯](./dp/dp81.go) 斐波那契数列
+
+82. 杨辉三角
 
 83. [打家劫舍](./dp/dp83.go) 数组元素 `f[i]` 表示偷窃第 `0` 间到第 `i` 间房屋能得到的最高金额
 
@@ -189,6 +223,8 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
                           |                |
                结果是 [偷第 i 间房] 与 [不偷第 i 间房] 的较大值
     ```
+
+84. 完全平方数
 
 85. [零钱兑换](./dp/dp85.go) 数组元素 `f[i]` 表示组成金额 `i`​ 所需的最少硬币数
 
@@ -214,14 +250,34 @@ LC [Hot 100](https://leetcode.cn/studyplan/top-100-liked/) and More...
                最终答案是所有情况取逻辑或的结果
     ```
 
+87. 最长递增子序列
+
+88. 乘积最大子数组
+
+89. 分割等和子集
+
+90. 最长有效括号
+
 # 多维动态规划
+
+91. 不同路径
+
+92. 最小路径和
 
 93. [最长回文子串](./mddp/mddp93.go) 中心扩展法
 
+94. 最长公共子序列
+
+95. 编辑距离
+
 # 技巧
+
+96. 只出现一次的数字
 
 97. [多数元素](./skills/skills97.go) Boyer-Moore 投票算法
 
 98. [荷兰国旗问题](./skills/skills98.go) 以 1 为主元进行三向切分
 
 99. [下一个排列](./skills/skills99.go) 将一个尽可能靠右的数和它右侧比它大的数中最小的那个交换
+
+100. 寻找重复数
