@@ -15,6 +15,36 @@ import (
 // LC 46 - 全排列
 // https://leetcode.cn/problems/permutations/description/
 
+func Permute1(nums []int) (ans [][]int) {
+	n := len(nums)
+	opt := make([]int, n)
+
+	// 填第 i 个元素
+	var dfs func(i int)
+	dfs = func(i int) {
+		if i == n {
+			ans = append(ans, append([]int(nil), opt...))
+			return
+		}
+		// 把 opt[0], opt[1], ..., opt[i-1] 标记为填过
+		vis := make(map[int]bool)
+		for j := 0; j < i; j++ {
+			vis[opt[j]] = true
+		}
+		// 首先填入第 i 个元素
+		// 然后在填第 i+1 个元素时只填未标记过的元素
+		for _, num := range nums {
+			if !vis[num] {
+				opt[i] = num
+				dfs(i + 1)
+			}
+		}
+	}
+
+	dfs(0)
+	return
+}
+
 // 利用下一个更大排列的解法
 func Permute2(nums []int) (ans [][]int) {
 	sort.Ints(nums)

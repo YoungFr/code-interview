@@ -251,3 +251,9 @@ Q: <font color=red>负载均衡</font>的策略与实现？
 
 <details><summary>A</summary>TODO</details>
 
+
+
+
+
+Q: <font color=red>分布式事务</font>？
+
