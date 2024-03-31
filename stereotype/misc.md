@@ -253,7 +253,9 @@ Q: <font color=red>负载均衡</font>的策略与实现？
 
 
 
+Q: MySQL的<font color=red>性能分析</font>？
 
-
-Q: <font color=red>分布式事务</font>？
-
+1. 增删改查所占的比例（执行频率）=> `show global status like 'Com_______';`
+2. 慢查询日志 => `show variables like 'slow_query_log';` => 编辑配置文件开启
+3. 使用 `profile` 查看每一条 SQL 的耗时 => `show profiles;`
+4. 使用 `explain/desc` 查看执行计划
