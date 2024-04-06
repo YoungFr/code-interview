@@ -226,9 +226,114 @@ tail [-f -num] file-path
   |   `:w`    |   仅保存   |
   | `:set nu` |  显示行号  |
 
-# 权限控制
+# 用户和组
 
+### 用户切换
 
+超级管理员 `root` 拥有最大的系统操作权限。
+
+普通用户一般在其 HOME 目录内不受限，但是在出了 HOME 目录的大多数地方只有读和执行权限，无修改权限。
+
+`su/exit`
+
+```shell
+su [-] [username]
+
+-        表示是否在切换用户后加载环境变量(建议使用)
+username 要切换的用户(省略表示切换到 root 用户)
+
+exit / CTRL + D
+用于退回上一个用户
+```
+
+`sudo`
+
+为普通用户授权使其临时以 root 用户执行命令。普通用户使用 `sudo` 需要配置：
+
+```
+切换到 root 用户后执行 visudo 命令
+在文件的最后添加:
+username ALL=(ALL)	NOPASSWD: ALL
+```
+
+### 用户管理
+
+Linux 的权限管控有针对**用户**的权限控制和针对**用户组**的权限控制两个级别：
+
+- 用户组管理
+
+  ```shell
+  # 所有命令需要 root 用户执行
+  
+  groupadd user-group-name # 创建
+  groupdel user-group-name # 删除
+
+- 用户管理
+
+  ```shell
+  # 所有命令需要 root 用户执行
+  
+  # -g 用于指定用户组/不指定时会创建同名的组/指定时用户组必须已存在
+  # -d 指定用户的 HOME 路径
+  useradd [-g -d] user-name # 创建用户
+  # -r 是否删除用户的 HOME 目录
+  userdel [-r] user-name # 删除用户
+  id [username] # 查看用户所属的组
+  usermod -aG user-group-name user-name # 修改用户所属的组
+  ```
+
+`getent`
+
+```shell
+# 查看系统全部用户信息
+# login name:encrypted password:UID:GID:comment:home directory:login shell
+getent passwd
+
+# 查看系统全部组信息
+# group name:encrypted password:GID:user list
+getent group
+```
+
+### 权限控制
+
+权限信息
+
+```
+|   0   |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |
+| types |      owner      |      group      |   other users   |
+| -/d/l | r/- | w/- | x/- | r/- | w/- | x/- | r/- | w/- | x/- |
+
+-/d/l: 文件/文件夹/软链接
+r: 文件 => 可以查看文件内容       文件夹 => 可以查看文件夹内容(ls)
+w: 文件 => 可以修改文件内容       文件夹 => 可以在文件夹中进行创建、删除、改名等操作
+x: 文件 => 可以将文件作为程序执行  文件夹 => 可以更改工作目录到此文件夹(cd)
+```
+
+`chmod`
+
+```shell
+# 由 (文件/文件夹的所属用户或 root 用户) 修改文件/文件夹的权限信息
+# -R 表示对文件夹内的全部内容应用同样的操作
+chmod [-R] permission file-path/directory-path
+
+# 将文件权限修改为 rwxr-x--x
+chmod u=rwx, g=rx, o=x hello.txt
+# 将文件夹 test 及其全部内容的权限设置为 rwxr-x--x
+chmod -R u=rwx, g=rx, o=x test
+
+# 权限的 3 位数字表示法: r-4 w-2 x-1
+#  0   1   2   3   4   5   6   7 
+# --- --x -w- -wx r-- r-x rw- rwx
+chmod 515 hello.txt # r-x--xr-x
+chmod 326 hello.txt # -wx-w-rw-
+```
+
+`chown`
+
+```shell
+# 只能由 root 用户执行以修改文件/文件夹所属的用户和用户组
+chown [-R] [owner][:][group] file-path/directory-path
+```
 
 # 软件安装
 
