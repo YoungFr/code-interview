@@ -307,6 +307,39 @@ chmod 326 hello.txt # -wx-w-rw-
 chown [-R] [owner][:][group] file-path/directory-path
 ```
 
+# 更多操作
+
+### 快捷按键
+
+`CTRL + C` —— 强制停止/退出当前输入后重新输入
+
+`CTRL + D` —— 退出登录的用户
+
+`history` —— 历史命令
+
+`CTRL + R` —— 输入内容去匹配历史命令。匹配 => 回车直接执行；不匹配 => 按左右键得到命令
+
+`CTRL + A / E / <- / ->` —— 光标跳到命令开头/结尾/上一个单词/下一个单词
+
+`CTRL + L / clear` —— 清空终端内容
+
+### 软件安装
+
+在 CentOS/Ubuntu 中联网安装软件的命令：
+
+```shell
+# 这些命令都要由 root 用户执行
+yum/apt [-y] [install] [remove] [search] software-name # -y 表示自动确认
+```
+
+### 服务控制
+
+
+
+### 软链接
+
+
+
 # 软件安装
 
 ### 在 Ubuntu 上安装 MySQL 8.0 数据库

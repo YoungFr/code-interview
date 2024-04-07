@@ -12,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func main() {
+func GetTitles() {
 	resp, err := http.Get("https://pyxt.ustc.edu.cn/?menu=public_replay")
 	if err != nil {
 		log.Fatal(err)

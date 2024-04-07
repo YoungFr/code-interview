@@ -36,7 +36,7 @@ package systemdesign
 //
 // 4. 处理器读取并解释内存中的指令
 //
-// 4.1 系统的硬件组成 => ../resources/hardware_organization.png
+// 4.1 系统的硬件组成 => ./resources/hardware_organization.png
 // - [总线] (bus) 用于传输被称为 [字] (word) 的定长字节块，一个字包含的
 //   字节数称为系统的 [字长] (word size) 。
 // - I/O 设备通过 [控制器] (controller) 或 [适配器] (adapter) 与
@@ -58,9 +58,9 @@ package systemdesign
 //   于描述这种具体的实现。
 //
 // 4.2 运行 hello 程序
-// - 读取输入 => ../resources/reading_input.png
-// - 使用 DMA 方式加载可执行文件到主存 => ../resources/loading_executable.png
-// - 执行程序中的机器指令 => ../resources/writing_output.png
+// - 读取输入 => ./resources/reading_input.png
+// - 使用 DMA 方式加载可执行文件到主存 => ./resources/loading_executable.png
+// - 执行程序中的机器指令 => ./resources/writing_output.png
 //
 // 5. 高速缓存至关重要
 //
@@ -179,7 +179,7 @@ package systemdesign
 //
 // 8. 系统之间利用网络通信
 //
-// - 现代系统通过网络和其他系统相连。从一个单独的系统来看，网络可以视为一个 I/O 设备 => ../resources/net.png
+// - 现代系统通过网络和其他系统相连。从一个单独的系统来看，网络可以视为一个 I/O 设备 => ./resources/net.png
 //
 // 9. 重要主题
 //
